@@ -24,3 +24,7 @@ dist/
 Thumbs.db
 .vs/
 .idea/
+
+# Local tool configuration
+.claude/
+*.tsbuildinfo

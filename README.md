@@ -2,8 +2,8 @@
 
 **Agentic operations intelligence for manufacturing — evidence-based answers from deterministic tools, not invented numbers.**
 
-> **Status: early development.** Milestones 1 (data foundation) and 2 (analytics API) are complete.
-> The dashboard and the agent are under construction — see the [Phase 1 plan](docs/architecture/phase-1-plan.md).
+> **Status: early development.** Milestones 1 (data foundation), 2 (analytics API) and 3 (dashboard) are complete.
+> The agent and the AI Analyst page are under construction — see the [Phase 1 plan](docs/architecture/phase-1-plan.md).
 > Only what is listed under "What works today" is implemented.
 
 OpsPilot AI lets an operations team ask questions such as *"Which production line had the most
@@ -61,11 +61,27 @@ On first start the API applies EF Core migrations, seeds the synthetic dataset a
 | `GET /internal/tools` | Tool list with strict JSON schemas (service key required) |
 | `POST /internal/tools/{name}` | Allowlisted, read-only agent tools (snake_case, service key required) |
 
+### Run the dashboard
+
+With the API running (above):
+
+```bash
+cd apps/web
+npm ci
+npm run dev        # http://127.0.0.1:5173 — proxies /api to 127.0.0.1:8080
+```
+
+The Overview page shows units produced, attainment, downtime and defect rate with
+period-over-period deltas, a daily attainment trend, downtime by line and downtime by reason.
+Every chart has a table view and names the endpoint, tables and row count behind it. Other
+navigation entries are placeholders labeled with the milestone or phase that delivers them.
+
 ### Tests
 
 ```bash
 python -m unittest discover -s tests/data -t .   # dataset integrity + metric oracle (stdlib only)
 dotnet test OpsPilot.sln                          # 78 tests; integration tests start SQL Server via Testcontainers
+(cd apps/web && npm test)                         # date ranges, formatting, deltas, axis ticks
 ```
 
 The integration suite replays all 29 golden cases from the independent Python oracle through the
@@ -79,7 +95,7 @@ See [sample-data/README.md](sample-data/README.md) for the dataset and seeded sc
 ## Repository layout
 
 ```
-apps/web          React dashboard and AI Analyst (M3, M5)
+apps/web          React dashboard (M3 ✓) and AI Analyst (M5)
 apps/api          ASP.NET Core analytics API and tool endpoints (M2 ✓)
 apps/ai-service   FastAPI + LangGraph agent (M4)
 sample-data       generator, CSVs, metric oracle, golden values (M1 ✓)
