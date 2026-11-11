@@ -13,8 +13,11 @@ also need to run the agent without a paid API key, and demo output must not be p
    (`compose`). Tool existence, argument validation, budgets, execution, charts and verification are code.
 2. **Grounding check after every answer.** Each finding must cite tool calls; every number in it must equal
    a value in those results at the precision written, or (except for measurements) the absolute difference
-   of two such values. Dates, line names, error codes and roadmap references are not quantities. Failing
-   findings are removed and a warning explains why; an unverifiable summary is withheld.
+   of two values of the same field when that field has at most six values (two periods' totals, or lines
+   compared side by side). Dates, line names, error codes and roadmap references are not quantities; month
+   names are matched case-sensitively as whole words. Failing findings are removed and a warning explains why;
+   an unverifiable summary is withheld. *(Tightened in the Phase 1 audit: the first version accepted
+   differences of any two values and treated words such as "declined" as dates.)*
 3. **Demo mode is a provider, not a separate path.** `DeterministicProvider` plans with rules and writes
    with templates, through the same graph, tools and grounding check. Responses carry `mode: "demo"` and
    `provider: "deterministic"`. The live provider degrades to it (with a warning) when the model is

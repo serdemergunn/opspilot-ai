@@ -19,6 +19,8 @@ class Settings:
     api_base_url: str = "http://127.0.0.1:8080"
     service_key: str = ""
     mode: Mode = "demo"
+    # Live mode spends money on every request, so the server decides whether clients may ask for it.
+    allow_live: bool = False
     anthropic_model: str = "claude-opus-5-5"
     anthropic_effort: str = "medium"
 
@@ -38,6 +40,7 @@ class Settings:
             api_base_url=os.environ.get("OPSPILOT_API_URL", cls.api_base_url).rstrip("/"),
             service_key=os.environ.get("OPSPILOT_SERVICE_KEY", ""),
             mode="live" if mode == "live" else "demo",
+            allow_live=mode == "live" or os.environ.get("OPSPILOT_ALLOW_LIVE", "").strip().lower() in ("1", "true", "yes"),
             anthropic_model=os.environ.get("ANTHROPIC_MODEL", cls.anthropic_model),
             anthropic_effort=os.environ.get("ANTHROPIC_EFFORT", cls.anthropic_effort),
             max_tool_calls=_int("OPSPILOT_MAX_TOOL_CALLS", cls.max_tool_calls),

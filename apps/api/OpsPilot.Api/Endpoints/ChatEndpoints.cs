@@ -20,10 +20,14 @@ public static class ChatEndpoints
     public const string RateLimitPolicy = "chat";
     public const int MaxMessages = 20;
     public const int MaxContentLength = 4_000;
+    public const int MaxConversationLength = 16_000;
+    public const long MaxBodyBytes = 64 * 1024;
 
     public static void MapChatEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapPost("/api/chat", ChatAsync).RequireRateLimiting(RateLimitPolicy);
+        app.MapPost("/api/chat", ChatAsync)
+            .RequireRateLimiting(RateLimitPolicy)
+            .WithMetadata(new Microsoft.AspNetCore.Mvc.RequestSizeLimitAttribute(MaxBodyBytes));
     }
 
     internal static Dictionary<string, string[]> Validate(ChatRequestDto body)
@@ -35,6 +39,8 @@ public static class ChatEndpoints
         else if (messages.Any(m => string.IsNullOrWhiteSpace(m.Content) || m.Content.Length > MaxContentLength))
             errors["messages"] = [$"Each message needs content of at most {MaxContentLength} characters."];
         else if (messages[^1].Role != "user") errors["messages"] = ["The last message must come from the user."];
+        else if (messages.Sum(m => m.Content!.Length) > MaxConversationLength)
+            errors["messages"] = [$"The conversation may contain at most {MaxConversationLength} characters."];
         if (body.Mode is not (null or "demo" or "live")) errors["mode"] = ["Mode must be 'demo' or 'live'."];
         return errors;
     }

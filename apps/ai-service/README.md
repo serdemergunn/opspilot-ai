@@ -16,9 +16,9 @@ understand → plan → execute_tools → validate_evidence ─┬→ respond �
 | understand | Reject malformed or oversized input; get plant-local "today" from `/api/meta` | code |
 | plan | Propose tool calls | provider (Claude, or rules in demo mode) |
 | execute_tools | Refuse unknown tools and duplicates, validate arguments (Pydantic), enforce the call budget, call `POST /internal/tools/{name}` concurrently | code + .NET API |
-| validate_evidence | Flag empty results and contradictory data; loop back while rounds, calls and time remain | code |
+| validate_evidence | Mark each result's data coverage against the dataset range (a window with no records is "no data", never zero), flag contradictory data; loop back while rounds, calls and time remain | code |
 | respond | Write a summary and findings labeled measurement / calculation / pattern / hypothesis / recommendation | provider |
-| ground_check | Every number in every finding must appear in the cited tool results (or be the difference of two of them); otherwise the finding is removed and a warning says so. Charts are built from tool results by code. | code |
+| ground_check | Every number in every finding must appear in the tool results the finding cites (or, except for measurements, be the difference of two values of the same small field there); otherwise the finding is removed and a warning says so. Findings with numbers that cite nothing are removed. Charts are built from tool results by code. | code |
 
 Limits (all enforced in code, configurable by environment): 6 tool calls, 3 planning rounds, 10 s per tool
 call, 45 s per request, 60,000 tokens per request.
@@ -28,8 +28,11 @@ call, 45 s per request, 60,000 tokens per request.
 - **`demo`** (default): `DeterministicProvider`. Rule-based intent matching and templates; the same graph,
   tools, data and grounding check. Responses say `"mode": "demo"`. No API key needed.
 - **`live`**: `AnthropicProvider` (`claude-opus-5-5`, effort `medium`, server-side refusal fallback).
-  Claude proposes tool calls and writes the answer as structured JSON. If credentials are missing or the
-  model fails, the request degrades to the deterministic pipeline and says so in `warnings`.
+  Claude proposes tool calls and writes the answer as structured JSON. Every model call is bounded by the
+  request deadline. Conversation history from the browser is passed as quoted, untrusted context, never as
+  assistant turns. If credentials are missing, the budget or time runs out, or the model fails, the request
+  degrades to the deterministic pipeline and says so in `warnings`. Live mode is only available when the server
+  sets `OPSPILOT_ALLOW_LIVE=true`.
 
 ## Run
 
@@ -55,7 +58,9 @@ in this repository's test suite.
 
 ## Known limitations
 
-- Derived numbers: a difference of any two values in the cited results is accepted. With large results
-  this can, rarely, accept a coincidental number. Findings must cite their tool calls to keep the pool small.
+- The grounding check is lexical. It proves a number came from the cited evidence, not that the sentence
+  interprets it correctly. A fabricated number that happens to equal a cited value still passes. Measured on a
+  typical 3-result answer, about 9% of random integers between 1 and 1000 pass, against 66% before the audit fix.
+  See `docs/technical-audit.md`.
 - Demo mode understands a fixed set of question shapes; anything else is answered as unsupported.
 - `langsmith` is installed as a LangGraph dependency; tracing stays off unless `LANGSMITH_TRACING` is set.

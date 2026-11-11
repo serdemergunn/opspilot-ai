@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 FindingKind = Literal["measurement", "calculation", "pattern", "hypothesis", "recommendation"]
 ToolStatus = Literal["succeeded", "failed", "rejected", "timeout", "invalid_arguments"]
@@ -16,10 +16,20 @@ class ChatMessage(BaseModel):
     content: str = Field(min_length=1, max_length=4_000)
 
 
+MAX_CONVERSATION_CHARS = 16_000
+
+
 class ChatRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     messages: list[ChatMessage] = Field(min_length=1, max_length=20)
     mode: Literal["demo", "live"] | None = None
+
+    @model_validator(mode="after")
+    def _bounded(self) -> "ChatRequest":
+        # Caps the tokens the history can add to every model call.
+        if sum(len(m.content) for m in self.messages) > MAX_CONVERSATION_CHARS:
+            raise ValueError(f"the conversation may contain at most {MAX_CONVERSATION_CHARS} characters")
+        return self
 
 
 class EvidenceRef(BaseModel):

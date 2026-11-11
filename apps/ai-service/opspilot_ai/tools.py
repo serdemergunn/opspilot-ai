@@ -122,6 +122,20 @@ TOOLS: dict[str, ToolSpec] = {
 ResultStatus = Literal["succeeded", "failed", "rejected", "timeout", "invalid_arguments"]
 
 
+@dataclass(frozen=True)
+class DataContext:
+    """Plant-local "today" (pinned in demo) and the range of dates that actually have records."""
+
+    today: date
+    first_date: date | None
+    last_date: date | None
+
+    def coverage(self, start: date, end: date) -> Literal["full", "partial", "none"]:
+        if self.first_date is None or self.last_date is None or end < self.first_date or start > self.last_date:
+            return "none"
+        return "full" if start >= self.first_date and end <= self.last_date else "partial"
+
+
 @dataclass
 class ToolResult:
     """One executed (or refused) tool call. This is the evidence the answer must be grounded in."""
@@ -135,6 +149,9 @@ class ToolResult:
     meta: dict[str, Any] | None = None
     error: str | None = None
     field_errors: dict[str, list[str]] = field(default_factory=dict)
+    # Set by the agent: whether the requested window lies inside the dataset ("none" means no records exist,
+    # which must never be reported as zero).
+    coverage: Literal["full", "partial", "none"] | None = None
 
     @property
     def ok(self) -> bool:
@@ -148,7 +165,13 @@ class ToolResult:
     def for_model(self) -> dict[str, Any]:
         """What the model sees: data only on success, a specific error otherwise. No secrets, no headers."""
         if self.ok:
-            return {"tool": self.tool, "status": "ok", "data": self.data, "meta": self.meta}
+            out = {"tool": self.tool, "status": "ok", "data": self.data, "meta": self.meta}
+            if self.coverage and self.coverage != "full":
+                out["data_coverage"] = (
+                    "No records exist for this window; zeros mean 'no data', not 'nothing happened'."
+                    if self.coverage == "none" else "Records cover only part of this window; totals are understated."
+                )
+            return out
         return {"tool": self.tool, "status": self.status, "error": self.error, "field_errors": self.field_errors}
 
 
@@ -184,11 +207,14 @@ class ToolClient:
     async def aclose(self) -> None:
         await self._client.aclose()
 
-    async def today(self) -> date:
-        """Plant-local "today" from the API, which applies the pinned demo clock and plant time zone."""
+    async def meta(self) -> DataContext:
+        """Plant-local "today" (the API applies the pinned demo clock and plant time zone) and data coverage."""
         r = await self._client.get("/api/meta")
         r.raise_for_status()
-        return date.fromisoformat(r.json()["today"])
+        body = r.json()
+        dataset = body.get("dataset") or {}
+        parse = lambda v: date.fromisoformat(v) if v else None  # noqa: E731
+        return DataContext(date.fromisoformat(body["today"]), parse(dataset.get("firstDate")), parse(dataset.get("lastDate")))
 
     async def call(self, call_id: str, tool: str, arguments: dict[str, Any]) -> ToolResult:
         started = time.perf_counter()

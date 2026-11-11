@@ -6,7 +6,7 @@
 
 Limits (tool calls, planning rounds, time, tokens) are enforced here, in code. The model only proposes tool
 calls; the registry decides what exists and the .NET API decides what is allowed. Every number in the final
-answer is checked against tool results before it is returned.
+answer is checked against the tool results it cites before it is returned.
 """
 
 from __future__ import annotations
@@ -18,17 +18,18 @@ import time
 import uuid
 from dataclasses import dataclass
 from datetime import date
-from typing import Any, Callable, TypedDict
+from decimal import Decimal
+from typing import Callable, TypedDict
 
 from langgraph.graph import END, START, StateGraph
 
 from .charts import build_chart
 from .config import Mode, Settings
-from .grounding import check_text, collect_values
+from .grounding import LENGTH_FIELD, check_text, collect_fields, merge
 from .providers.base import Draft, PlannedCall, Provider, ProviderError
 from .providers.deterministic import DeterministicProvider
 from .schemas import ChatRequest, ChatResponse, EvidenceRef, Finding, TimelineStep, ToolCallRecord, Usage
-from .tools import ToolClient, ToolResult, validate_arguments
+from .tools import DataContext, ToolClient, ToolResult, validate_arguments
 
 log = logging.getLogger("opspilot.agent")
 
@@ -38,16 +39,19 @@ COMPOSE_RESERVE_MAX_S = 8.0
 
 class AgentState(TypedDict, total=False):
     question: str
-    today: date
+    data: DataContext
     evidence: list[ToolResult]
+    validated: int  # number of evidence items already checked by validate_evidence
     pending: list[PlannedCall]
     rounds: int
     tool_calls_used: int
-    unsupported: str | None
+    unsupported: str | None  # system-authored refusal
+    model_message: str | None  # model-authored text returned instead of tool calls
     fatal: str | None
     warnings: list[str]
     timeline: list[TimelineStep]
     draft: Draft
+    system_text: bool  # the draft was written by this service, not by a provider
     response: ChatResponse
 
 
@@ -64,9 +68,26 @@ class _Run:
     def remaining_s(self) -> float:
         return self.deadline - time.monotonic()
 
+    def fall_back(self) -> None:
+        self.provider, self.fell_back = DeterministicProvider(), True
+
 
 def _step(step: str, label: str, status: str, started: float) -> TimelineStep:
     return TimelineStep(step=step, label=label, status=status, duration_ms=int((time.monotonic() - started) * 1000))  # type: ignore[arg-type]
+
+
+def _window(e: ToolResult) -> tuple[date, date] | None:
+    try:
+        return date.fromisoformat(e.arguments["start_date"]), date.fromisoformat(e.arguments["end_date"])
+    except (KeyError, ValueError, TypeError):
+        return None
+
+
+def _evidence_fields(e: ToolResult) -> dict[str, set[Decimal]]:
+    fields = collect_fields(e.data)
+    if (w := _window(e)) is not None:  # "7 days" is a fact about the request window
+        fields.setdefault(LENGTH_FIELD, set()).add(Decimal((w[1] - w[0]).days + 1))
+    return fields
 
 
 class Agent:
@@ -75,13 +96,16 @@ class Agent:
         self.tools = tools
         self.provider_factory = provider_factory
 
-    async def run(self, request: ChatRequest, mode: Mode) -> ChatResponse:
+    async def run(self, request: ChatRequest, mode: Mode, notes: list[str] | None = None) -> ChatResponse:
         timeout = self.settings.request_timeout_s
         run = _Run(request=request, provider=self.provider_factory(mode), deadline=time.monotonic() + timeout,
                    reserve_s=min(COMPOSE_RESERVE_MAX_S, timeout * COMPOSE_RESERVE_FRACTION))
+        run.provider.deadline = run.deadline
         graph = self._build(run)
-        initial: AgentState = {"evidence": [], "pending": [], "rounds": 0, "tool_calls_used": 0, "warnings": [], "timeline": [], "unsupported": None, "fatal": None}
-        state = await asyncio.wait_for(graph.ainvoke(initial, {"recursion_limit": 40}), timeout=self.settings.request_timeout_s + 2)
+        initial: AgentState = {"evidence": [], "validated": 0, "pending": [], "rounds": 0, "tool_calls_used": 0,
+                               "warnings": list(notes or []), "timeline": [], "unsupported": None, "model_message": None,
+                               "fatal": None}
+        state = await asyncio.wait_for(graph.ainvoke(initial, {"recursion_limit": 40}), timeout=timeout + 2)
         response: ChatResponse = state["response"]
         log.info(json.dumps({
             "event": "chat_completed", "answer_id": response.answer_id, "mode": response.mode, "provider": response.provider,
@@ -95,6 +119,9 @@ class Agent:
     def _build(self, run: _Run):  # noqa: C901 - the graph reads best in one place
         s = self.settings
 
+        def over_budget() -> bool:
+            return run.provider.usage.input_tokens + run.provider.usage.output_tokens > s.token_budget
+
         async def understand(state: AgentState) -> AgentState:
             t0 = time.monotonic()
             last = run.request.messages[-1]
@@ -105,11 +132,11 @@ class Agent:
                 return {"unsupported": f"Please keep questions under {s.max_question_chars} characters.", "question": last.content,
                         "timeline": timeline + [_step("understand", "Request rejected (too long)", "failed", t0)]}
             try:
-                today = await self.tools.today()
-            except Exception:  # noqa: BLE001 - any failure here means the API is unavailable
+                data = await self.tools.meta()
+            except Exception:  # noqa: BLE001 - any failure here means the API or its database is unavailable
                 return {"fatal": "The analytics API is unavailable, so no data can be retrieved right now.", "question": last.content,
                         "timeline": timeline + [_step("understand", "Analytics API unavailable", "failed", t0)]}
-            return {"question": last.content, "today": today, "timeline": timeline + [_step("understand", "Request interpreted", "succeeded", t0)]}
+            return {"question": last.content, "data": data, "timeline": timeline + [_step("understand", "Request interpreted", "succeeded", t0)]}
 
         async def plan(state: AgentState) -> AgentState:
             t0 = time.monotonic()
@@ -118,29 +145,32 @@ class Agent:
                 warnings.append("Stopped gathering evidence early to stay within the time limit.")
                 return {"pending": [], "warnings": warnings}
             remaining = s.max_tool_calls - state["tool_calls_used"]
+            today = state["data"].today
             try:
-                step = await run.provider.plan(run.request.messages, state["today"], state["evidence"], remaining)
+                step = await run.provider.plan(run.request.messages, today, state["evidence"], remaining)
             except ProviderError as e:
                 if run.provider.mode == "live" and not state["evidence"]:
                     # Degrade to the deterministic provider rather than failing the request.
                     warnings.append(f"{e} This answer was produced by the deterministic demo pipeline instead.")
-                    run.provider, run.fell_back = DeterministicProvider(), True
-                    step = await run.provider.plan(run.request.messages, state["today"], state["evidence"], remaining)
+                    run.fall_back()
+                    step = await run.provider.plan(run.request.messages, today, state["evidence"], remaining)
                 else:
                     warnings.append(str(e))
                     return {"pending": [], "warnings": warnings, "timeline": timeline + [_step("plan", "Planning failed", "failed", t0)]}
-            if run.provider.usage.input_tokens + run.provider.usage.output_tokens > s.token_budget:
+            if over_budget():
                 warnings.append("Token budget reached; answering with the evidence gathered so far.")
                 step.calls = []
+            model_message = step.message if (not step.calls and state["rounds"] == 0) else state.get("model_message")
             label = f"Planned {len(step.calls)} tool call(s)" if step.calls else ("Question not supported" if step.unsupported else "No further tools needed")
             return {
-                "pending": step.calls, "rounds": state["rounds"] + 1, "unsupported": step.unsupported, "warnings": warnings,
-                "timeline": timeline + [_step("plan", label, "succeeded", t0)],
+                "pending": step.calls, "rounds": state["rounds"] + 1, "unsupported": step.unsupported, "model_message": model_message,
+                "warnings": warnings, "timeline": timeline + [_step("plan", label, "succeeded", t0)],
             }
 
         async def execute_tools(state: AgentState) -> AgentState:
             evidence, timeline = list(state["evidence"]), list(state["timeline"])
             used = state["tool_calls_used"]
+
             def key_of(tool: str, arguments: dict) -> tuple[str, str]:
                 normalized, _, _ = validate_arguments(tool, arguments)  # compare with defaults applied
                 return tool, json.dumps(normalized if normalized is not None else arguments, sort_keys=True, default=str)
@@ -166,68 +196,91 @@ class Agent:
 
         async def validate_evidence(state: AgentState) -> AgentState:
             t0 = time.monotonic()
-            warnings = list(state["warnings"])
-            new = [e for e in state["evidence"] if e.ok and not getattr(e, "_validated", False)]
-            for e in new:
-                e._validated = True  # type: ignore[attr-defined]
-                d = e.data or {}
-                if e.tool in ("get_downtime_by_line", "get_downtime_reasons") and d.get("total_downtime_minutes") == 0:
-                    warnings.append(f"{e.tool} found no downtime for {e.arguments['start_date']} to {e.arguments['end_date']}.")
-                if e.tool == "get_production_summary":
-                    if d["totals"]["record_count"] == 0:
-                        warnings.append(f"No production records exist for {e.arguments['start_date']} to {e.arguments['end_date']}; the period may be outside the dataset.")
-                    elif sum(row["produced_quantity"] for row in d["by_line"]) != d["totals"]["produced_quantity"]:
+            warnings, data = list(state["warnings"]), state["data"]
+            for e in state["evidence"][state["validated"]:]:
+                if not e.ok:
+                    continue
+                d, window = e.data or {}, _window(e)
+                if window is not None:
+                    e.coverage = data.coverage(*window)
+                    if e.coverage != "full":
+                        span = f"{data.first_date} to {data.last_date}" if data.first_date else "no dates"
+                        what = "No records exist for" if e.coverage == "none" else "Records cover only part of"
+                        warnings.append(f"{what} {window[0]} to {window[1]} ({e.tool}); the dataset covers {span}.")
+                if e.coverage != "none":
+                    if e.tool in ("get_downtime_by_line", "get_downtime_reasons") and d.get("total_downtime_minutes") == 0:
+                        warnings.append(f"{e.tool} found no downtime for {e.arguments['start_date']} to {e.arguments['end_date']}.")
+                    if e.tool == "get_production_summary" and sum(row["produced_quantity"] for row in d["by_line"]) != d["totals"]["produced_quantity"]:
                         warnings.append("Contradictory data: per-line production does not add up to the reported total.")
-            failed = [e for e in state["evidence"] if not e.ok]
-            label = f"Results validated ({sum(e.ok for e in state['evidence'])} succeeded, {len(failed)} not used)"
-            return {"warnings": warnings, "timeline": state["timeline"] + [_step("validate", label, "succeeded", t0)]}
+            ok = sum(e.ok for e in state["evidence"])
+            label = f"Results validated ({ok} succeeded, {len(state['evidence']) - ok} not used)"
+            return {"warnings": warnings, "validated": len(state["evidence"]),
+                    "timeline": state["timeline"] + [_step("validate", label, "succeeded", t0)]}
 
         async def respond(state: AgentState) -> AgentState:
             t0 = time.monotonic()
             warnings, evidence = list(state["warnings"]), state["evidence"]
+            today = state["data"].today if state.get("data") else date.today()
+            system_text = True
             if state.get("fatal"):
                 draft = Draft(summary=state["fatal"])
             elif state.get("unsupported"):
                 draft = Draft(summary=state["unsupported"])
             elif not any(e.ok for e in evidence):
-                problems = "; ".join(sorted({f"{e.tool}: {e.error or e.status}" for e in evidence})) or "no tool was called"
-                draft = Draft(summary=f"I could not retrieve the data needed to answer ({problems}).")
+                if state.get("model_message") and not evidence:
+                    draft, system_text = Draft(summary=state["model_message"][:800]), False
+                else:
+                    problems = "; ".join(sorted({f"{e.tool}: {e.error or e.status}" for e in evidence})) or "no tool was called"
+                    draft = Draft(summary=f"I could not retrieve the data needed to answer ({problems}).")
             else:
-                try:
-                    draft = await run.provider.compose(state["question"], state["today"], evidence)
-                except ProviderError as e:
-                    warnings.append(f"{e} The findings below were produced by the deterministic demo pipeline from the same tool results.")
-                    run.fell_back = True
-                    draft = await DeterministicProvider().compose(state["question"], state["today"], evidence)
-            return {"draft": draft, "warnings": warnings, "timeline": state["timeline"] + [_step("respond", "Answer composed", "succeeded", t0)]}
+                system_text = False
+                use_model = run.provider.mode == "live" and not run.fell_back
+                if use_model and over_budget():
+                    warnings.append("Token budget reached before the answer was written; the findings come from the deterministic demo pipeline.")
+                    use_model = False
+                elif use_model and run.remaining_s() < run.reserve_s / 2:
+                    warnings.append("Not enough time left to ask the model for the answer; the findings come from the deterministic demo pipeline.")
+                    use_model = False
+                draft = None
+                if use_model or run.provider.mode == "demo":
+                    try:
+                        draft = await run.provider.compose(state["question"], today, evidence)
+                    except ProviderError as e:
+                        warnings.append(f"{e} The findings below were produced by the deterministic demo pipeline from the same tool results.")
+                if draft is None:
+                    run.fell_back = run.fell_back or run.provider.mode == "live"
+                    draft = await DeterministicProvider().compose(state["question"], today, evidence)
+            return {"draft": draft, "system_text": system_text, "warnings": warnings,
+                    "timeline": state["timeline"] + [_step("respond", "Answer composed", "succeeded", t0)]}
 
         async def ground_check(state: AgentState) -> AgentState:
             t0 = time.monotonic()
             draft, evidence, warnings = state["draft"], state["evidence"], list(state["warnings"])
             ok = {e.id: e for e in evidence if e.ok}
-            values_by_id = {i: collect_values(e.data) | {_window_days(e.arguments)} for i, e in ok.items()}
-            all_values = set().union(*values_by_id.values()) if values_by_id else set()
-            system_text = bool(state.get("fatal") or state.get("unsupported")) or not ok
+            fields_by_id = {i: _evidence_fields(e) for i, e in ok.items()}
+            all_fields = merge(*fields_by_id.values())
 
             findings: list[Finding] = []
             for f in draft.findings:
-                refs = [i for i in f.evidence_tool_call_ids if i in ok]
-                values = set().union(*(values_by_id[i] for i in refs)) if refs else all_values
-                result = check_text(f.text, values, allow_derived=f.kind != "measurement")
+                refs = list(dict.fromkeys(i for i in f.evidence_tool_call_ids if i in ok))
+                fields = merge(*(fields_by_id[i] for i in refs))  # numbers must come from the cited results
+                result = check_text(f.text, fields, allow_derived=f.kind != "measurement")
                 if result.verdict == "ungrounded":
-                    warnings.append(f"Removed a {f.kind} statement because its numbers ({', '.join(result.ungrounded)}) do not appear in the tool results.")
+                    reason = (f"its numbers ({', '.join(result.ungrounded)}) do not appear in the cited tool results"
+                              if refs else "it contains numbers but cites no tool result")
+                    warnings.append(f"Removed a {f.kind} statement because {reason}.")
                     continue
                 findings.append(Finding(id=f"f{len(findings) + 1}", kind=f.kind, text=f.text,
-                                        evidence=[EvidenceRef(tool_call_id=i) for i in (refs or list(ok))] if result.verdict != "no_numbers" or refs else [],
-                                        grounding=result.verdict))  # type: ignore[arg-type]
+                                        evidence=[EvidenceRef(tool_call_id=i) for i in refs], grounding=result.verdict))  # type: ignore[arg-type]
 
             summary = draft.summary
-            if not system_text and check_text(summary, all_values).verdict == "ungrounded":
+            if not state.get("system_text") and check_text(summary, all_fields).verdict == "ungrounded":
                 summary = "The summary was withheld because it contained numbers that could not be verified against the tool results. The verified findings are listed below."
                 warnings.append("Withheld an unverifiable summary.")
 
             charts = []
-            chart_ids = [i for i in draft.chart_tool_call_ids if i in ok] or list(ok)
+            chartable = [i for i in ok if ok[i].coverage != "none"]
+            chart_ids = [i for i in draft.chart_tool_call_ids if i in chartable] or chartable
             for i in chart_ids:
                 chart = build_chart(ok[i], f"c{len(charts) + 1}")
                 if chart:
@@ -276,13 +329,3 @@ class Agent:
         g.add_edge("respond", "ground_check")
         g.add_edge("ground_check", END)
         return g.compile()
-
-
-def _window_days(arguments: dict[str, Any]) -> Any:
-    from decimal import Decimal
-
-    try:
-        days = (date.fromisoformat(arguments["end_date"]) - date.fromisoformat(arguments["start_date"])).days + 1
-    except (KeyError, ValueError, TypeError):
-        return Decimal(0)
-    return Decimal(days)

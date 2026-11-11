@@ -15,7 +15,7 @@ public sealed class ApiFixture : IAsyncLifetime
     public const string ServiceKey = "test-service-key";
     private const string ReaderPassword = "Reader-Passw0rd!Test";
 
-    private readonly MsSqlContainer _sql = new MsSqlBuilder().WithImage("mcr.microsoft.com/mssql/server:2022-latest").Build();
+    private readonly MsSqlContainer _sql = new MsSqlBuilder("mcr.microsoft.com/mssql/server:2022-latest").Build();
 
     public WebApplicationFactory<Program> Factory { get; private set; } = null!;
     public string ReaderConnectionString { get; private set; } = "";

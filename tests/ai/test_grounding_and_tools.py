@@ -4,12 +4,20 @@ from decimal import Decimal
 import httpx
 import pytest
 
-from opspilot_ai.grounding import check_text, collect_values, extract_numbers
+from datetime import date
+
+import reference_metrics as oracle
+from opspilot_ai.grounding import LENGTH_FIELD, check_text, collect_fields, extract_numbers, merge
 from opspilot_ai.tools import TOOLS, ToolClient, validate_arguments
 
 from conftest import SERVICE_KEY
 
-EVIDENCE = {"items": [{"downtime_minutes": 2903, "downtime_hours": 48.4, "share_pct": 40.3}], "total_downtime_minutes": 7202, "a": 83.1, "b": 79.8}
+EVIDENCE = {
+    "items": [{"downtime_minutes": 2903, "downtime_hours": 48.4, "share_pct": 40.3}],
+    "total_downtime_minutes": 7202,
+    "totals": [{"attainment_pct": 83.1}, {"attainment_pct": 79.8}],
+    "omitted_count": 0,
+}
 
 
 class TestGrounding:
@@ -23,19 +31,42 @@ class TestGrounding:
     @pytest.mark.parametrize("text,verdict", [
         ("Line 04 recorded 2,903 minutes, 40.3% of 7,202.", "verified"),
         ("About 40% of downtime.", "verified"),  # written with less precision than the source
-        ("Attainment fell by 3.3 percentage points.", "derived"),  # |83.1 - 79.8|
+        ("Attainment fell by 3.3 percentage points.", "derived"),  # |83.1 - 79.8|, same field
         ("Line 04 lost 51 hours.", "ungrounded"),
         ("Share was 40.4%.", "ungrounded"),  # off by one decimal is still wrong
         ("No numbers at all.", "no_numbers"),
     ])
     def test_check_text(self, text, verdict):
-        assert check_text(text, collect_values(EVIDENCE)).verdict == verdict
+        assert check_text(text, collect_fields(EVIDENCE)).verdict == verdict
+
+    @pytest.mark.parametrize("text", [
+        # Regression (audit H1): words that start like month abbreviations used to hide the number after them.
+        "Output decreased 2500 units.",
+        "Downtime declined 45 percent.",
+        "Attainment may 99.9% recover.",
+        "A novel 777 approach.",
+        "Results marked 12 incidents.",
+    ])
+    def test_ordinary_words_never_hide_numbers(self, text):
+        assert check_text(text, collect_fields(EVIDENCE)).verdict == "ungrounded"
+
+    def test_derived_values_require_the_same_field(self):
+        # 7202 - 2903 = 4299, but they are different fields, so the difference is not evidence (audit H2).
+        assert check_text("A gap of 4,299 minutes.", collect_fields(EVIDENCE)).verdict == "ungrounded"
 
     def test_measurements_can_disallow_derived_values(self):
-        assert check_text("A change of 3.3.", collect_values(EVIDENCE), allow_derived=False).verdict == "ungrounded"
+        assert check_text("A change of 3.3.", collect_fields(EVIDENCE), allow_derived=False).verdict == "ungrounded"
 
     def test_list_lengths_count_as_evidence(self):
-        assert Decimal(1) in collect_values(EVIDENCE)
+        assert Decimal(1) in collect_fields(EVIDENCE)[LENGTH_FIELD]
+
+    def test_random_numbers_rarely_pass_on_real_results(self, dataset):
+        """Upper bound on accidental acceptance for a typical 3-result answer (was 66% before the audit fix)."""
+        week = (date(2026, 11, 4), date(2026, 11, 10))
+        fields = merge(collect_fields(oracle.production_summary(dataset, *week)), collect_fields(oracle.daily_trend(dataset, *week)),
+                       collect_fields(oracle.downtime_by_line(dataset, *week)))
+        accepted = sum(check_text(f"{n} minutes", fields).verdict != "ungrounded" for n in range(1, 1001))
+        assert accepted <= 100, accepted
 
 
 class TestToolArguments:

@@ -284,3 +284,66 @@ def test_ordinary_wording_is_not_mistaken_for_injection(question):
 def test_code_and_instruction_override_requests_are_declined(question):
     i = interpret(question, TODAY)
     assert i.intent is None and "cannot run SQL" in i.unsupported
+
+
+# --- Audit regressions: periods, missing data, citations, model messages ---------------------------------
+
+def test_explicit_month_is_answered_for_that_month(demo_agent, dataset):
+    r = ask(demo_agent, "Which line had the most downtime in September 2026?")
+    assert r.tool_calls[0].arguments["start_date"] == "2026-09-01" and r.tool_calls[0].arguments["end_date"] == "2026-09-30"
+    top = oracle.downtime_by_line(dataset, date(2026, 9, 1), date(2026, 9, 30))["items"][0]
+    assert f"{top['downtime_minutes']:,}" in r.summary and r.warnings == []
+
+
+def test_period_without_data_is_reported_as_no_data_not_zero(demo_agent):
+    r = ask(demo_agent, "Which line had the most downtime in March 2026?")
+    assert r.tool_calls[0].arguments["start_date"] == "2026-03-01"
+    assert r.summary.startswith("No data is available") and r.findings == [] and r.charts == []
+    assert any(w.startswith("No records exist") for w in r.warnings)
+    assert not any("0 minutes" in f.text for f in r.findings)
+
+
+def test_partial_coverage_is_flagged(demo_agent):
+    r = ask(demo_agent, "Downtime by line in the last 90 days")  # starts Aug 13 -> full; 92 days would not be
+    assert not any("only part" in w for w in r.warnings)
+    r = ask(demo_agent, "Downtime by line from 2026-08-01 to 2026-08-31")
+    assert any("Records cover only part" in w for w in r.warnings) and r.findings
+
+
+@pytest.mark.parametrize("question", ["Which line will have the most downtime next week?", "Downtime in Q3", "Production in the last 4 months"])
+def test_questions_we_cannot_scope_call_no_tools(demo_agent, fake_api, question):
+    r = ask(demo_agent, question)
+    assert r.tool_calls == [] and fake_api.calls == [] and r.findings == []
+
+
+def test_findings_citing_unknown_tool_calls_are_removed(settings, tool_client):
+    provider = ScriptedProvider(plans=[PlanStep(calls=[PlannedCall("t1", "get_downtime_by_line", LAST_WEEK)])], draft=Draft(
+        summary="ok",
+        findings=[DraftFinding(kind="calculation", text="Line 04 recorded 2,903 minutes.", evidence_tool_call_ids=["fake-id"]),
+                  DraftFinding(kind="calculation", text="Line 04 recorded 2,903 minutes.", evidence_tool_call_ids=["t1"])],
+    ))
+    r = ask(agent_with(settings, tool_client, provider), "q", mode="live")
+    assert [f.evidence[0].tool_call_id for f in r.findings] == ["t1"]
+    assert any("cites no tool result" in w for w in r.warnings)
+
+
+def test_model_refusal_text_is_shown_and_still_grounded(settings, tool_client):
+    refusal = ScriptedProvider(plans=[PlanStep(message="These tools cannot answer questions about quality incidents.")])
+    r = ask(agent_with(settings, tool_client, refusal), "Which quality issues matter most?", mode="live")
+    assert r.summary == "These tools cannot answer questions about quality incidents." and r.tool_calls == []
+    invented = ScriptedProvider(plans=[PlanStep(message="Line 04 lost 512 minutes, no tools needed.")])
+    r = ask(agent_with(settings, tool_client, invented), "q", mode="live")
+    assert "withheld" in r.summary and "512" not in r.summary
+
+
+def test_compose_over_token_budget_uses_the_deterministic_pipeline(settings, tool_client):
+    class Expensive(ScriptedProvider):
+        async def plan(self, history, today, evidence, remaining_calls):
+            if evidence:  # the second planning round spends the rest of the budget
+                self.usage.input_tokens = settings.token_budget + 1
+            return await super().plan(history, today, evidence, remaining_calls)
+
+    provider = Expensive(plans=[PlanStep(calls=[PlannedCall("t1", "get_downtime_by_line", LAST_WEEK)]), PlanStep()],
+                         draft=Draft(summary="model answer"))
+    r = ask(agent_with(settings, tool_client, provider), "Which production line had the most downtime last week?", mode="live")
+    assert r.summary != "model answer" and r.mode == "demo" and any("Token budget" in w for w in r.warnings)

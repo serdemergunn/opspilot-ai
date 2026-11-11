@@ -50,6 +50,9 @@ public sealed class DatabaseInitializer(IConfiguration config, IHostEnvironment 
     {
         // Identifiers cannot be parameters in DDL, so values are passed as parameters and quoted with QUOTENAME
         // inside dynamic SQL. No caller-provided text is concatenated into the command.
+        // QUOTENAME returns NULL above 128 characters, which would make EXEC(@q) a silent no-op.
+        if (login.Length is 0 or > 128 || password.Length is 0 or > 128)
+            throw new InvalidOperationException("The reader login and password must be 1-128 characters.");
         const string sql = """
             DECLARE @q nvarchar(max);
             IF NOT EXISTS (SELECT 1 FROM sys.server_principals WHERE name = @login)

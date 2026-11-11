@@ -53,8 +53,13 @@ def create_app(settings: Settings | None = None, tools: ToolClient | None = None
         if not settings.service_key or not hmac.compare_digest(x_opspilot_service_key.encode(), settings.service_key.encode()):
             raise HTTPException(status_code=401, detail="unauthorized")
         mode: Mode = body.mode or settings.mode
+        notes: list[str] = []
+        if mode == "live" and not settings.allow_live:
+            mode = "demo"
+            notes.append("Live mode is disabled on this server (set OPSPILOT_ALLOW_LIVE=true and ANTHROPIC_API_KEY to enable it); "
+                         "this answer comes from the deterministic demo pipeline.")
         try:
-            return await request.app.state.agent.run(body, mode)
+            return await request.app.state.agent.run(body, mode, notes)
         except asyncio.TimeoutError:
             raise HTTPException(status_code=504, detail="The request exceeded the time limit.") from None
 

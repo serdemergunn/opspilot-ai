@@ -26,8 +26,11 @@ class PlannedCall:
 @dataclass
 class PlanStep:
     calls: list[PlannedCall] = field(default_factory=list)
-    # Set when the question cannot be answered with the available tools.
+    # Set when the question cannot be answered with the available tools (system-authored text).
     unsupported: str | None = None
+    # Text the model returned instead of tool calls, e.g. a correct "I can't answer that". Model-authored,
+    # so it goes through the grounding check like any other answer text.
+    message: str | None = None
 
 
 class DraftFinding(BaseModel):
@@ -60,6 +63,8 @@ class Provider(Protocol):
     name: str
     mode: Literal["demo", "live"]
     usage: TokenUsage
+    # Monotonic deadline for the whole request; providers that call remote models size their timeouts from it.
+    deadline: float | None
 
     async def plan(self, history: list[ChatMessage], today: date, evidence: list[ToolResult], remaining_calls: int) -> PlanStep: ...
 

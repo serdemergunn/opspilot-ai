@@ -67,29 +67,105 @@ UNSUPPORTED_GENERIC = (
 )
 
 
-def parse_period(q: str, today: date) -> Period:
+UNSUPPORTED_FORECAST = (
+    "OpsPilot reports on recorded data only; it does not forecast future periods. "
+    "Ask about a past period, for example \"last week\" or \"October 2026\"."
+)
+UNSUPPORTED_PERIOD = (
+    "I could not tell which period you mean. Use a relative period (\"yesterday\", \"last 7 days\", \"last 3 weeks\", "
+    "\"last month\"), a month (\"October 2026\") or dates (\"from 2026-10-01 to 2026-10-07\")."
+)
+UNSUPPORTED_RANGE = "Periods can cover at most 92 days. Please ask about a shorter period."
+
+_MONTHS = {m: i for i, m in enumerate(
+    ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"], start=1)}
+_MONTHS.update({k[:3]: v for k, v in list(_MONTHS.items())})
+_MONTHS["sept"] = 9
+_COUNT = r"(\d{1,2}|" + "|".join(_WORD_NUMBERS) + r")"
+
+
+def _count(token: str) -> int:
+    return _WORD_NUMBERS.get(token) or int(token)
+
+
+def _month_period(month: int, year: int | None, today: date) -> Period:
+    if year is None:  # the most recent such month that has started
+        year = today.year if month <= today.month else today.year - 1
+    start = date(year, month, 1)
+    end = (date(year + month // 12, month % 12 + 1, 1)) - timedelta(days=1)
+    return Period(start, min(end, today - timedelta(days=1)) if end >= today else end)
+
+
+def parse_period(q: str, today: date) -> tuple[Period | None, str | None]:
+    """Returns (period, problem). Never substitutes a default for a period the user did ask about."""
     yesterday = today - timedelta(days=1)
-    if "yesterday" in q:
-        return Period(yesterday, yesterday)
-    if m := re.search(r"(?:last|past|previous)\s+(\d{1,3})\s+days?", q):
-        n = max(1, min(92, int(m.group(1))))
-        return Period(yesterday - timedelta(days=n - 1), yesterday)
-    if re.search(r"(?:last|previous|past)\s+month", q):
+    last_n = lambda days: Period(yesterday - timedelta(days=days - 1), yesterday)  # noqa: E731
+
+    if re.search(r"\b(?:next|tomorrow|upcoming|will|forecast|predict|projected?)\b", q):
+        return None, UNSUPPORTED_FORECAST
+    dates = re.findall(r"\b(\d{4}-\d{2}-\d{2})\b", q)
+    if dates:
+        try:
+            parsed = sorted(date.fromisoformat(d) for d in dates[:2])
+        except ValueError:
+            return None, UNSUPPORTED_PERIOD
+        period = Period(parsed[0], parsed[-1])
+    elif "yesterday" in q:
+        period = Period(yesterday, yesterday)
+    elif m := re.search(rf"\b(?:last|past|previous)\s+{_COUNT}\s+days?\b", q):
+        period = last_n(_count(m.group(1)))
+    elif m := re.search(rf"\b(?:last|past|previous)\s+{_COUNT}\s+weeks?\b", q):
+        period = last_n(7 * _count(m.group(1)))
+    elif m := re.search(rf"\b(?:last|past|previous)\s+{_COUNT}\s+months?\b", q):
+        months = _count(m.group(1))
         first_this = today.replace(day=1)
-        last_prev = first_this - timedelta(days=1)
-        return Period(last_prev.replace(day=1), last_prev)
-    if re.search(r"(?:last|past|previous)\s+(?:quarter|90 days|three months)", q):
-        return Period(yesterday - timedelta(days=89), yesterday)
-    # "last week", "this week" and no period at all: the last 7 complete days.
-    return Period(yesterday - timedelta(days=6), yesterday)
+        start = first_this
+        for _ in range(months):
+            start = (start - timedelta(days=1)).replace(day=1)
+        period = Period(start, first_this - timedelta(days=1))
+    elif re.search(r"\b(?:last|previous|past)\s+month\b", q):
+        last_prev = today.replace(day=1) - timedelta(days=1)
+        period = Period(last_prev.replace(day=1), last_prev)
+    elif re.search(r"\bthis\s+month\b|\bmonth[-\s]to[-\s]date\b", q):
+        period = Period(today.replace(day=1), yesterday) if today.day > 1 else last_n(1)
+    elif re.search(r"\b(?:last|past|previous)\s+quarter\b", q):
+        period = last_n(90)
+    elif m := re.search(
+        r"\b(?:(?:in|during|for|of)\s+)?(" + "|".join(sorted(_MONTHS, key=len, reverse=True)) + r")\b(?:\s+(\d{4}))?", q
+    ):
+        name, year = m.group(1), m.group(2)
+        # "may" is also a verb: only read it as a month with "in/during/for/of" before it or a year after it.
+        if name == "may" and not (year or re.search(r"\b(?:in|during|for|of)\s+may\b", q)):
+            period = last_n(7)
+        else:
+            period = _month_period(_MONTHS[name], int(year) if year else None, today)
+    elif re.search(r"\b(?:19|20)\d{2}\b|\bq[1-4]\b|\bquarter\b|\bsince\b|\bweek of\b", q):
+        return None, UNSUPPORTED_PERIOD  # a period was given but not in a form we understand
+    else:
+        # "last week", "this week" or no period at all: the last 7 complete days.
+        period = last_n(7)
+
+    if period.start >= today:
+        return None, UNSUPPORTED_FORECAST
+    if (period.end - period.start).days + 1 > 92:
+        return None, UNSUPPORTED_RANGE
+    return period, None
 
 
 def parse_lines(q: str) -> list[str]:
     codes: list[str] = []
-    for m in re.finditer(r"\bline\s*0?(\d{1,2})\b|\bl(\d{2})\b", q):
-        code = f"L{int(m.group(1) or m.group(2)):02d}"
+
+    def add(num: str) -> None:
+        code = f"L{int(num):02d}"
         if code not in codes:
             codes.append(code)
+
+    # "line 4", "lines 4 and 5", "lines 1, 2 and 4", "L04"
+    for m in re.finditer(r"\blines?\s*((?:0?\d{1,2})(?:\s*(?:,|and|&|vs\.?|versus)\s*(?:line\s*)?0?\d{1,2})*)\b", q):
+        for num in re.findall(r"\d{1,2}", m.group(1)):
+            add(num)
+    for m in re.finditer(r"\bl(\d{2})\b", q):
+        add(m.group(1))
     return codes
 
 
@@ -103,7 +179,9 @@ def parse_top_n(q: str) -> int | None:
 
 def interpret(question: str, today: date) -> Interpretation:
     q = question.lower()
-    period, lines, top_n = parse_period(q, today), parse_lines(q), parse_top_n(q)
+    parsed_period, period_problem = parse_period(q, today)
+    period = parsed_period or Period(today - timedelta(days=7), today - timedelta(days=1))
+    lines, top_n = parse_lines(q), parse_top_n(q)
 
     def result(intent: Intent | None, unsupported: str | None = None) -> Interpretation:
         return Interpretation(intent, period, lines, top_n, unsupported)
@@ -116,6 +194,8 @@ def interpret(question: str, today: date) -> Interpretation:
         return result(None, UNSUPPORTED_QUALITY)
     if re.search(r"error code|\be\d{3}\b|maintenance|documentation|manual|procedure|troubleshoot|equipment", q):
         return result(None, UNSUPPORTED_DOCS)
+    if period_problem:
+        return result(None, period_problem)
 
     downtime = re.search(r"downtime|interruption|stoppage|stops?\b|outage", q)
     if (re.search(r"\bcompare\b|\bvs\.?\b|versus", q)) and len(lines) >= 2:
@@ -157,6 +237,7 @@ class DeterministicProvider:
 
     def __init__(self) -> None:
         self.usage = TokenUsage()
+        self.deadline: float | None = None
         self._planned = False
 
     async def plan(self, history: list[ChatMessage], today: date, evidence: list[ToolResult], remaining_calls: int) -> PlanStep:
@@ -195,6 +276,10 @@ class DeterministicProvider:
     async def compose(self, question: str, today: date, evidence: list[ToolResult]) -> Draft:
         i = interpret(question, today)
         ok = [e for e in evidence if e.ok]
+        if ok and all(e.coverage == "none" for e in ok):
+            # Zeros from a window without records mean "no data", never "nothing happened".
+            return Draft(summary=f"No data is available for {i.period.label}: the dataset has no records for that period, "
+                                 "so no figures can be reported.")
         by_tool: dict[str, list[ToolResult]] = {}
         for e in ok:
             by_tool.setdefault(e.tool, []).append(e)

@@ -1,4 +1,6 @@
+using System.Net;
 using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -20,6 +22,26 @@ builder.Services.AddOptions<OpsPilotOptions>().BindConfiguration("OpsPilot");
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddSingleton<PlantClock>();
 builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<DatabaseUnavailableHandler>();
+
+// Behind the nginx container every request arrives from the proxy's address, which would make the chat rate
+// limit global. When enabled, trust X-Forwarded-For (one hop) from private networks only; nginx overwrites the
+// header with the real client address, so clients cannot choose their own bucket.
+if (builder.Configuration.GetValue<bool>("OpsPilot:ForwardedHeaders:Enabled"))
+{
+    builder.Services.Configure<ForwardedHeadersOptions>(o =>
+    {
+        o.ForwardedHeaders = ForwardedHeaders.XForwardedFor;
+        o.ForwardLimit = 1;
+        o.KnownProxies.Clear();
+        o.KnownNetworks.Clear();
+        foreach (var cidr in new[] { "10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16" })
+        {
+            var parts = cidr.Split('/');
+            o.KnownNetworks.Add(new Microsoft.AspNetCore.HttpOverrides.IPNetwork(IPAddress.Parse(parts[0]), int.Parse(parts[1])));
+        }
+    });
+}
 
 // Request-serving context uses the read-only login. Read lazily so test hosts can override configuration.
 builder.Services.AddDbContext<OpsPilotDbContext>((sp, o) => o
@@ -58,6 +80,7 @@ builder.Services.AddCors(o => o.AddDefaultPolicy(p => p
 
 var app = builder.Build();
 
+if (app.Configuration.GetValue<bool>("OpsPilot:ForwardedHeaders:Enabled")) app.UseForwardedHeaders();
 app.UseExceptionHandler();
 app.UseStatusCodePages();
 app.UseCors();

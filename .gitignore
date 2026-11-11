@@ -28,3 +28,5 @@ Thumbs.db
 # Local tool configuration
 .claude/
 *.tsbuildinfo
+.coverage
+htmlcov/

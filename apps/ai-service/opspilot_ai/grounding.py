@@ -1,11 +1,13 @@
 """Number grounding: every number in an answer must come from a tool result.
 
-This is a deterministic check, independent of the model. A number in a finding is accepted when it
-equals a value in the referenced tool results at the precision it is written with ("verified"), or the
-absolute difference of two such values ("derived", e.g. a change in percentage points). Anything else is
-treated as fabricated and the finding is removed.
+This is a deterministic check, independent of the model. A number is accepted when it equals a value in the
+cited tool results at the precision it is written with ("verified"), or - except for measurements - the absolute
+difference of two values of the *same field* in those results ("derived", e.g. attainment 83.1% vs 79.8%
+-> 3.3 points). Anything else is treated as fabricated and the statement is removed.
 
-Identifiers are not quantities and are ignored: dates, line names ("Line 04", "L04"), error codes ("E104").
+Identifiers are not quantities and are ignored: dates, line names ("Line 04", "L04"), error codes ("E104"),
+equipment codes and roadmap references ("Phase 2"). Month names are matched case-sensitively and as whole
+words, so ordinary words such as "declined" or "may" never hide a number.
 """
 
 from __future__ import annotations
@@ -14,21 +16,31 @@ import re
 from dataclasses import dataclass
 from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 from itertools import combinations
-from typing import Any, Iterable, Literal
+from typing import Any, Literal, Mapping
 
-_MONTHS = r"(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)[a-z]*\.?"
+_MONTH = (
+    r"(?:January|February|March|April|May|June|July|August|September|October|November|December"
+    r"|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)\.?"
+)
+_DAY = r"(?:3[01]|[12]\d|0?[1-9])(?:st|nd|rd|th)?(?![\d.,]\d)"
 _IDENTIFIERS = [
-    re.compile(r"\b\d{4}-\d{2}-\d{2}\b"),  # ISO dates
-    re.compile(rf"\b{_MONTHS}\s+\d{{1,2}}(?:st|nd|rd|th)?(?:,\s*\d{{4}})?", re.IGNORECASE),  # Nov 4, 2026
-    re.compile(rf"\b\d{{1,2}}\s+{_MONTHS}(?:\s+\d{{4}})?", re.IGNORECASE),  # 4 Nov 2026
-    re.compile(rf"\b{_MONTHS}\s+\d{{4}}\b", re.IGNORECASE),  # October 2026
-    re.compile(r"\b(?:production\s+)?lines?\s+0?\d{1,2}\b", re.IGNORECASE),  # Line 04
+    re.compile(r"\b\d{4}-\d{2}-\d{2}\b"),  # 2026-11-10
+    re.compile(rf"\b{_MONTH}\s+{_DAY}(?:,?\s+\d{{4}})?\b"),  # Nov 4, 2026 / Nov 4
+    re.compile(rf"\b{_DAY}\s+{_MONTH}(?:\s+\d{{4}})?\b"),  # 4 Nov 2026
+    re.compile(rf"\b{_MONTH}\s+\d{{4}}\b"),  # October 2026
+    re.compile(r"\b(?:production\s+)?[Ll]ines?\s+0?\d{1,2}\b"),  # Line 04
     re.compile(r"\bL\d{2}\b"),  # L04
-    re.compile(r"\b[A-Z]\d{3}\b"),  # E104
     re.compile(r"\b[A-Z]\d{2}-EQ\d{2}\b"),  # L04-EQ02
-    re.compile(r"\b(?:phase|milestone)\s+\d+\b", re.IGNORECASE),  # roadmap references, e.g. "Phase 2"
+    re.compile(r"\b[A-Z]\d{3}\b"),  # E104
+    re.compile(r"\b(?:[Pp]hase|[Mm]ilestone)\s+\d+\b"),  # Phase 2
 ]
 _NUMBER = re.compile(r"(?<![\w.])[-−+]?(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?(?![\w])")
+
+LENGTH_FIELD = "__len__"  # list lengths, e.g. "across 6 lines"
+# Differences are only accepted within small fields: two periods' totals, or up to six lines compared side by
+# side. Long per-day series would make almost any integer reachable as a difference.
+MAX_DERIVED_POOL = 6
+Fields = Mapping[str, set[Decimal]]
 
 
 @dataclass(frozen=True)
@@ -54,25 +66,34 @@ def extract_numbers(text: str) -> list[Number]:
     return out
 
 
-def collect_values(obj: Any) -> set[Decimal]:
-    """All numeric leaves of tool results, plus list lengths (e.g. "3 reasons", "6 lines")."""
-    values: set[Decimal] = set()
+def collect_fields(obj: Any, into: dict[str, set[Decimal]] | None = None) -> dict[str, set[Decimal]]:
+    """Numeric leaves of a tool result grouped by field path ("totals.attainment_pct", "items[].share_pct"),
+    plus list lengths. The same path from two results of the same tool lands in the same group."""
+    fields = into if into is not None else {}
 
-    def walk(o: Any) -> None:
+    def walk(o: Any, path: str) -> None:
         if isinstance(o, bool) or o is None:
             return
         if isinstance(o, (int, float)):
-            values.add(abs(Decimal(str(o))))
+            fields.setdefault(path, set()).add(abs(Decimal(str(o))))
         elif isinstance(o, dict):
-            for v in o.values():
-                walk(v)
+            for k, v in o.items():
+                walk(v, f"{path}.{k}" if path else str(k))
         elif isinstance(o, list):
-            values.add(Decimal(len(o)))
+            fields.setdefault(LENGTH_FIELD, set()).add(Decimal(len(o)))
             for v in o:
-                walk(v)
+                walk(v, f"{path}[]")
 
-    walk(obj)
-    return values
+    walk(obj, "")
+    return fields
+
+
+def merge(*parts: Fields) -> dict[str, set[Decimal]]:
+    out: dict[str, set[Decimal]] = {}
+    for p in parts:
+        for k, v in p.items():
+            out.setdefault(k, set()).update(v)
+    return out
 
 
 def _round(v: Decimal, decimals: int) -> Decimal:
@@ -88,20 +109,24 @@ class CheckResult:
     ungrounded: list[str]
 
 
-def check_text(text: str, values: Iterable[Decimal], allow_derived: bool = True, max_pair_values: int = 600) -> CheckResult:
+def check_text(text: str, fields: Fields, allow_derived: bool = True) -> CheckResult:
     numbers = extract_numbers(text)
     if not numbers:
         return CheckResult("no_numbers", [])
-    pool = sorted(set(values))
+    values = set().union(*fields.values()) if fields else set()
+    differences: set[Decimal] | None = None
     derived_used = False
     ungrounded: list[str] = []
-    differences: set[Decimal] | None = None
     for n in numbers:
-        if any(_round(v, n.decimals) == n.value for v in pool):
+        if any(_round(v, n.decimals) == n.value for v in values):
             continue
-        if allow_derived and len(pool) <= max_pair_values:
+        if allow_derived:
             if differences is None:
-                differences = {abs(a - b) for a, b in combinations(pool, 2)}
+                differences = {
+                    abs(a - b)
+                    for name, vs in fields.items() if name != LENGTH_FIELD and len(vs) <= MAX_DERIVED_POOL
+                    for a, b in combinations(sorted(vs), 2)
+                }
             if any(_round(d, n.decimals) == n.value for d in differences):
                 derived_used = True
                 continue

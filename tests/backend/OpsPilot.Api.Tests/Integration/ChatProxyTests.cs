@@ -64,7 +64,13 @@ public class ChatProxyTests(ApiFixture fx)
         { """{"messages":[{"role":"user","content":"hi"},{"role":"assistant","content":"hello"}]}""", "messages" },
         { """{"messages":[{"role":"user","content":"hi"}],"mode":"admin"}""", "mode" },
         { $$"""{"messages":[{"role":"user","content":"{{new string('x', 4001)}}"}]}""", "messages" },
+        { Conversation(messages: 5, length: 3_999), "messages" }, // each message is valid, the total is too long
     };
+
+    private static string Conversation(int messages, int length) => System.Text.Json.JsonSerializer.Serialize(new
+    {
+        messages = Enumerable.Range(0, messages).Select(_ => new { role = "user", content = new string('x', length) }),
+    });
 
     [Theory]
     [MemberData(nameof(InvalidBodies))]
@@ -89,6 +95,18 @@ public class ChatProxyTests(ApiFixture fx)
         Assert.Equal(expected, r.StatusCode);
         Assert.Equal("application/problem+json", r.Content.Headers.ContentType?.MediaType);
         Assert.Contains(titleContains, (string)JsonNode.Parse(await r.Content.ReadAsStringAsync())!["title"]!);
+    }
+
+    [Fact]
+    public async Task Oversized_bodies_are_never_forwarded()
+    {
+        // Kestrel answers 413 from the endpoint's 64 KB RequestSizeLimit (checked against the running stack);
+        // TestServer does not enforce body-size limits, so here validation rejects it with 400 instead.
+        var (client, ai) = Create();
+        var huge = new string('x', 70 * 1024);
+        var r = await client.PostAsync("/api/chat", new StringContent($$"""{"messages":[{"role":"user","content":"{{huge}}"}]}""", System.Text.Encoding.UTF8, "application/json"));
+        Assert.Contains(r.StatusCode, new[] { HttpStatusCode.RequestEntityTooLarge, HttpStatusCode.BadRequest });
+        Assert.Empty(ai.Received);
     }
 
     [Fact]

@@ -41,7 +41,7 @@ class FakeApi:
         if request.headers.get("X-OpsPilot-Service-Key") != SERVICE_KEY:
             return httpx.Response(401, json={"status": "unauthorized"})
         if request.url.path == "/api/meta":
-            return httpx.Response(200, json={"today": TODAY})
+            return httpx.Response(200, json={"today": TODAY, "dataset": {"firstDate": "2026-08-13", "lastDate": "2026-11-10"}})
         tool = request.url.path.rsplit("/", 1)[-1]
         args = json.loads(request.content or b"{}")
         self.calls.append((tool, args))
