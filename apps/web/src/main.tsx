@@ -3,13 +3,13 @@ import { createRoot } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { Layout, NAV } from "./components/Layout";
+import { AnalystPage } from "./features/analyst/AnalystPage";
 import { OverviewPage } from "./features/overview/OverviewPage";
 import { PlaceholderPage } from "./pages/PlaceholderPage";
 import { SettingsPage } from "./pages/SettingsPage";
 import "./index.css";
 
 const DESCRIPTIONS: Record<string, string> = {
-  "/analyst": "Ask operational questions in natural language. Answers show the tools that ran, a chart built from their results and the source of every number.",
   "/production": "Production volume, attainment and defect rates by line and day.",
   "/downtime": "Downtime events, reasons and the equipment involved.",
   "/quality": "Quality incidents by category, severity and status.",
@@ -27,6 +27,7 @@ const router = createBrowserRouter([
     element: <Layout />,
     children: [
       { path: "/", element: <OverviewPage /> },
+      { path: "/analyst", element: <AnalystPage /> },
       { path: "/settings", element: <SettingsPage /> },
       ...NAV.filter((n) => n.availableIn).map((n) => ({
         path: n.path,

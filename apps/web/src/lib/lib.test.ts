@@ -71,3 +71,24 @@ describe("percent axis", () => {
     expect(percentAxis([40, 99])).toEqual({ domain: [35, 100], ticks: [40, 50, 60, 70, 80, 90, 100] });
   });
 });
+
+import { buildHistory, type ChatResponse } from "../api/chat";
+
+describe("chat history", () => {
+  const answered = (summary: string) => ({ summary }) as ChatResponse;
+  it("sends earlier questions with the summaries that answered them, skipping failed turns", () => {
+    const history = buildHistory(
+      [{ question: "q1", response: answered("a1") }, { question: "q2" }, { question: "q3", response: answered("a3") }],
+      "q4",
+    );
+    expect(history).toEqual([
+      { role: "user", content: "q1" }, { role: "assistant", content: "a1" },
+      { role: "user", content: "q3" }, { role: "assistant", content: "a3" },
+      { role: "user", content: "q4" },
+    ]);
+  });
+  it("keeps the request within the API's 20-message limit", () => {
+    const many = Array.from({ length: 30 }, (_, i) => ({ question: `q${i}`, response: answered(`a${i}`) }));
+    expect(buildHistory(many, "next").length).toBeLessThanOrEqual(20);
+  });
+});

@@ -2,9 +2,9 @@
 
 **Agentic operations intelligence for manufacturing — evidence-based answers from deterministic tools, not invented numbers.**
 
-> **Status: early development.** Milestones 1–4 (data, analytics API, dashboard, agent service) are complete.
-> The AI Analyst page that connects the dashboard to the agent is under construction — see the [Phase 1 plan](docs/architecture/phase-1-plan.md).
-> Only what is listed under "What works today" is implemented.
+> **Status: Phase 1 (working MVP) complete.** Dashboard, analytics API, agent service and AI Analyst run
+> end to end with `docker compose up`. Phases 2–5 (more tools, RAG, evaluation, release polish) are next —
+> see the [Phase 1 plan](docs/architecture/phase-1-plan.md). Only what is listed under "What works today" is implemented.
 
 OpsPilot AI lets an operations team ask questions such as *"Which production line had the most
 downtime last week?"* and get an answer where every number comes from a typed, read-only,
@@ -24,7 +24,7 @@ labeled as a measurement, a calculation, a pattern, a hypothesis or a recommenda
 - **Demo mode without API keys**, using the same graph and real tools, clearly labeled as
   deterministic output.
 
-## Architecture (Phase 1 target)
+## Architecture
 
 ```
 React (Vite, TanStack Query, Recharts)
@@ -34,18 +34,37 @@ ASP.NET Core 8 API ──── read-only login ────▶ SQL Server
    │  /api/chat (proxy)        ▲
    ▼                           │ POST /internal/tools/{name}  (allowlist, service key)
 FastAPI + LangGraph agent ─────┘
-   └─ provider: Anthropic | OpenAI | Deterministic (demo)
+   └─ provider: Anthropic (live) | Deterministic (demo); other LLMs plug into the same Provider interface
 ```
 
 PostgreSQL + pgvector for the knowledge base arrives in Phase 3.
 
 ## What works today
 
-### Run the API (Docker)
+### Quick start (Docker)
+
+Requires Docker. No LLM API key is needed: the agent runs in clearly labeled demo mode by default.
 
 ```bash
 cp .env.example .env        # then set MSSQL_SA_PASSWORD, OPSPILOT_DB_READER_PASSWORD, OPSPILOT_SERVICE_KEY
 docker compose up --build -d
+```
+
+Open **http://127.0.0.1:3000**: the Overview dashboard, and **AI Analyst**, where you can ask
+*"Which production line had the most downtime last week?"* and get an answer with verified findings, a
+chart built from the tool result, the tool calls with their parameters and an execution timeline.
+To use Claude, set `ANTHROPIC_API_KEY` in `.env` and pick **Live (Claude)** on the AI Analyst page.
+
+| Service | Address (localhost only) |
+|---|---|
+| Web (dashboard + AI Analyst) | http://127.0.0.1:3000 |
+| .NET API | http://127.0.0.1:8080 |
+| AI service (debugging) | http://127.0.0.1:8090 |
+| SQL Server | 127.0.0.1:14333 |
+
+### API
+
+```bash
 curl http://127.0.0.1:8080/api/meta
 curl "http://127.0.0.1:8080/api/analytics/downtime-by-line?startDate=2026-11-04&endDate=2026-11-10"
 ```
@@ -58,12 +77,13 @@ On first start the API applies EF Core migrations, seeds the synthetic dataset a
 |---|---|
 | `GET /api/health`, `/api/meta`, `/api/lines` | Status, pinned clock, dataset range, lines |
 | `GET /api/analytics/{production-summary, downtime-by-line, downtime-reasons, daily-trend}` | Dashboard data (camelCase) |
+| `POST /api/chat` | Ask the agent; validated, rate limited (20/min per client) and forwarded to the AI service |
 | `GET /internal/tools` | Tool list with strict JSON schemas (service key required) |
 | `POST /internal/tools/{name}` | Allowlisted, read-only agent tools (snake_case, service key required) |
 
-### Run the dashboard
+### Run the dashboard in development mode
 
-With the API running (above):
+With the API running (above), for hot reload instead of the web container:
 
 ```bash
 cd apps/web
@@ -76,9 +96,9 @@ period-over-period deltas, a daily attainment trend, downtime by line and downti
 Every chart has a table view and names the endpoint, tables and row count behind it. Other
 navigation entries are placeholders labeled with the milestone or phase that delivers them.
 
-### Ask the agent (AI service)
+### Ask the agent directly (AI service)
 
-`docker compose up --build -d` also starts the agent service on `127.0.0.1:8090` (demo mode by default):
+The browser goes through `/api/chat`; for debugging, the agent service also listens on `127.0.0.1:8090`:
 
 ```bash
 curl -s -X POST http://127.0.0.1:8090/v1/chat   -H "X-OpsPilot-Service-Key: <OPSPILOT_SERVICE_KEY from .env>" -H "Content-Type: application/json"   -d '{"messages":[{"role":"user","content":"Which production line had the most downtime last week?"}]}'
@@ -94,7 +114,7 @@ and any warnings. Every number in a finding has passed a grounding check against
 
 ```bash
 python -m unittest discover -s tests/data -t .   # dataset integrity + metric oracle (stdlib only)
-dotnet test OpsPilot.sln                          # 78 tests; integration tests start SQL Server via Testcontainers
+dotnet test OpsPilot.sln                          # 89 tests; integration tests start SQL Server via Testcontainers
 (cd apps/web && npm test)                         # date ranges, formatting, deltas, axis ticks
 python -m pytest tests/ai -q                      # agent graph, tools, grounding, limits, injection (in apps/ai-service venv)
 ```
@@ -110,7 +130,7 @@ See [sample-data/README.md](sample-data/README.md) for the dataset and seeded sc
 ## Repository layout
 
 ```
-apps/web          React dashboard (M3 ✓) and AI Analyst (M5)
+apps/web          React dashboard (M3 ✓) and AI Analyst (M5 ✓)
 apps/api          ASP.NET Core analytics API and tool endpoints (M2 ✓)
 apps/ai-service   FastAPI + LangGraph agent (M4 ✓)
 sample-data       generator, CSVs, metric oracle, golden values (M1 ✓)

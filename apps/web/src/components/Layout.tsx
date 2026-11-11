@@ -13,7 +13,7 @@ export interface NavItem {
 
 export const NAV: NavItem[] = [
   { path: "/", label: "Overview", icon: "M3 3h6v6H3zM11 3h6v6h-6zM3 11h6v6H3zM11 11h6v6h-6z" },
-  { path: "/analyst", label: "AI Analyst", icon: "M4 4h12v9H8l-4 3z", availableIn: "M5" },
+  { path: "/analyst", label: "AI Analyst", icon: "M4 4h12v9H8l-4 3z" },
   { path: "/production", label: "Production", icon: "M3 17V9l4 3V9l4 3V5h6v12z", availableIn: "Phase 2" },
   { path: "/downtime", label: "Downtime", icon: "M10 3a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm0 3v4l3 2", availableIn: "Phase 2" },
   { path: "/quality", label: "Quality", icon: "M10 2l6 3v5c0 4-3 7-6 8-3-1-6-4-6-8V5z", availableIn: "Phase 2" },

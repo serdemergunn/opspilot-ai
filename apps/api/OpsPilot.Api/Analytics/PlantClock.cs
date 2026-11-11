@@ -20,6 +20,17 @@ public sealed class OpsPilotOptions
         public string TimeZone { get; set; } = "UTC";
     }
 
+    public AiServiceOptions AiService { get; set; } = new();
+
+    public sealed class AiServiceOptions
+    {
+        /// <summary>Internal address of the AI service. Never exposed to the browser.</summary>
+        public string BaseUrl { get; set; } = "http://127.0.0.1:8090";
+        public int TimeoutSeconds { get; set; } = 60;
+        /// <summary>Chat requests allowed per client IP per minute.</summary>
+        public int RequestsPerMinute { get; set; } = 20;
+    }
+
     public sealed class ToolOptions
     {
         /// <summary>Shared secret the AI service sends in X-OpsPilot-Service-Key. Empty disables tool endpoints.</summary>

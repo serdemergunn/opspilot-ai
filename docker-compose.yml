@@ -1,5 +1,5 @@
 # Local development only. Every port binds to 127.0.0.1; there is no authentication yet.
-# Usage: cp .env.example .env  (then set passwords)  &&  docker compose up --build
+# Usage: cp .env.example .env  (then set passwords)  &&  docker compose up --build  ->  http://127.0.0.1:3000
 name: opspilot
 
 services:
@@ -35,6 +35,7 @@ services:
       OpsPilot__Clock__ReferenceTimeUtc: ${OPSPILOT_REFERENCE_TIME_UTC:-2026-11-11T00:00:00Z}
       OpsPilot__Plant__TimeZone: ${OPSPILOT_PLANT_TIMEZONE:-UTC}
       OpsPilot__Tools__ServiceKey: ${OPSPILOT_SERVICE_KEY:?Set OPSPILOT_SERVICE_KEY in .env}
+      OpsPilot__AiService__BaseUrl: http://ai-service:8090
     ports:
       - "127.0.0.1:8080:8080"
 
@@ -51,8 +52,17 @@ services:
       OPSPILOT_MODE: ${OPSPILOT_MODE:-demo}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
     ports:
-      # Local debugging only; in Milestone 5 the browser reaches the agent through the API's /api/chat.
+      # Local debugging only; the browser reaches the agent through the API's /api/chat.
       - "127.0.0.1:8090:8090"
+
+  web:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/web.Dockerfile
+    depends_on:
+      - api
+    ports:
+      - "127.0.0.1:3000:8080"
 
 volumes:
   sqldata:

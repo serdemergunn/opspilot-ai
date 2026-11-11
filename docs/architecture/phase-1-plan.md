@@ -385,7 +385,7 @@ exists, the API decides what is allowed.
 | **M2** ✓ | Analytics API | EF Core schema + migrations, CSV seeder, 4 dashboard endpoints, 3 tool endpoints, xUnit unit tests + golden parity (Testcontainers), Compose with SQL Server + API | .NET 8 SDK, Docker |
 | **M3** ✓ | Dashboard | React Overview page against M2, loading/empty/error states | Node 20+ |
 | **M4** ✓ | AI service | FastAPI, Pydantic tool clients, LangGraph graph, `DeterministicProvider`, Anthropic provider, grounding check, pytest with fake provider and stubbed API | Python 3.12 |
-| M5 | AI Analyst + E2E | Chat page, chart from tool results, tool list, `/api/chat` proxy, full Compose, **Phase 1 acceptance** | all |
+| **M5** ✓ | AI Analyst + E2E | Chat page, chart from tool results, tool list, `/api/chat` proxy, full Compose, **Phase 1 acceptance** | all |
 
 Phases 2–5 follow the brief; each will get its own plan section when Phase 1 is accepted.
 
@@ -408,3 +408,22 @@ Phases 2–5 follow the brief; each will get its own plan section when Phase 1 i
 6. The seeded scenarios are detectable in the golden values (Line 04 leads downtime in the last
    7 days; Line 02 has an outage on 2026-11-10).
 7. `python -m unittest discover -s tests/data -t .` passes locally and in GitHub Actions.
+
+---
+
+## 8. Phase 1 acceptance record (2026-11-11)
+
+Verified on the full Docker Compose stack (`web`, `api`, `ai-service`, `sqlserver`) in a browser at
+`http://127.0.0.1:3000/analyst`, demo mode:
+
+| Check | Result |
+|---|---|
+| "Which production line had the most downtime last week?" | Line 04, 2,903 minutes (48.4 h), 40.3% of 7,202 minutes — identical to the golden values |
+| Evidence | Bar chart from the `get_downtime_by_line` result; tool call with parameters, status and duration; 7-step timeline |
+| Findings | Labeled measurement / calculation / hypothesis / suggested action; numbers verified against tool results |
+| Multi-tool question ("Why did production efficiency decrease yesterday?") | 4 tool calls; attainment 83.1% → 79.8% (derived difference 3.3 pp) |
+| Unsupported question (error code E104) | Declined with the phase that adds the capability; no tool calls |
+| Failure handling | API down: dashboard error state with retry; AI service unreachable: 503 problem details; no Anthropic key: live requests fall back to demo with a warning |
+
+Not verified in Phase 1: live answers from the Anthropic API (no key in the development environment; the
+provider is covered by tests with a fake SDK client).
