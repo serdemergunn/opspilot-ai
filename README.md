@@ -1,5 +1,8 @@
 # OpsPilot AI
 
+[![CI](https://github.com/serdemergunn/opspilot-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/serdemergunn/opspilot-ai/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 **Agentic operations intelligence for manufacturing — evidence-based answers from deterministic tools, not invented numbers.**
 
 > **Status: Phase 1 (working MVP) complete.** Dashboard, analytics API, agent service and AI Analyst run
@@ -10,6 +13,26 @@ OpsPilot AI lets an operations team ask questions such as *"Which production lin
 downtime last week?"* and get an answer where every number comes from a typed, read-only,
 tested backend tool, every chart is built from tool output by code, and every statement is
 labeled as a measurement, a calculation, a pattern, a hypothesis or a recommendation.
+
+![AI Analyst answering "Which production line had the most downtime last week?" with labeled findings, a chart and the tool-call timeline](docs/screenshots/ai-analyst.png)
+
+<details>
+<summary><b>More screenshots</b>: a multi-tool answer and the operations dashboard</summary>
+
+**"Why did production efficiency decrease yesterday?"** — four tool calls, a derived calculation
+(83.1% → 79.8%, a 3.3-point change computed from two tool results) and a hypothesis that is explicitly
+marked as unverified.
+
+![Multi-tool answer with verified measurements, a derived calculation, patterns, a hypothesis and a suggested action](docs/screenshots/ai-analyst-multi-tool.png)
+
+**Overview dashboard** — every chart has a table view and names the endpoint, tables and row count behind it.
+
+![Operations dashboard with KPI tiles, daily attainment, downtime by line and downtime reasons](docs/screenshots/overview.png)
+
+</details>
+
+Screenshots show demo mode on the synthetic dataset. They are reproducible: `scripts/screenshots`
+captures them from a running stack (`npm ci && npm run capture`).
 
 ## Core ideas
 

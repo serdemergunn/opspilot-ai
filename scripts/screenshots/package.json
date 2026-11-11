@@ -1,0 +1,8 @@
+{
+  "name": "@opspilot/screenshots",
+  "private": true,
+  "type": "module",
+  "description": "Captures the README screenshots from a running stack (docker compose up) with a locally installed Chromium browser.",
+  "scripts": { "capture": "node capture.mjs" },
+  "devDependencies": { "puppeteer-core": "23.10.0" }
+}
