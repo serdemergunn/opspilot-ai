@@ -2,8 +2,8 @@
 
 **Agentic operations intelligence for manufacturing — evidence-based answers from deterministic tools, not invented numbers.**
 
-> **Status: early development.** Milestones 1 (data foundation), 2 (analytics API) and 3 (dashboard) are complete.
-> The agent and the AI Analyst page are under construction — see the [Phase 1 plan](docs/architecture/phase-1-plan.md).
+> **Status: early development.** Milestones 1–4 (data, analytics API, dashboard, agent service) are complete.
+> The AI Analyst page that connects the dashboard to the agent is under construction — see the [Phase 1 plan](docs/architecture/phase-1-plan.md).
 > Only what is listed under "What works today" is implemented.
 
 OpsPilot AI lets an operations team ask questions such as *"Which production line had the most
@@ -76,12 +76,27 @@ period-over-period deltas, a daily attainment trend, downtime by line and downti
 Every chart has a table view and names the endpoint, tables and row count behind it. Other
 navigation entries are placeholders labeled with the milestone or phase that delivers them.
 
+### Ask the agent (AI service)
+
+`docker compose up --build -d` also starts the agent service on `127.0.0.1:8090` (demo mode by default):
+
+```bash
+curl -s -X POST http://127.0.0.1:8090/v1/chat   -H "X-OpsPilot-Service-Key: <OPSPILOT_SERVICE_KEY from .env>" -H "Content-Type: application/json"   -d '{"messages":[{"role":"user","content":"Which production line had the most downtime last week?"}]}'
+```
+
+The response contains a summary, findings labeled measurement / calculation / pattern / hypothesis /
+recommendation, charts built from tool results, every tool call with its status and duration, a timeline
+and any warnings. Every number in a finding has passed a grounding check against the tool results
+([ADR 0004](docs/decisions/0004-grounding-check-and-deterministic-demo-provider.md)). Set
+`ANTHROPIC_API_KEY` and `OPSPILOT_MODE=live` to use Claude; see [apps/ai-service](apps/ai-service/README.md).
+
 ### Tests
 
 ```bash
 python -m unittest discover -s tests/data -t .   # dataset integrity + metric oracle (stdlib only)
 dotnet test OpsPilot.sln                          # 78 tests; integration tests start SQL Server via Testcontainers
 (cd apps/web && npm test)                         # date ranges, formatting, deltas, axis ticks
+python -m pytest tests/ai -q                      # agent graph, tools, grounding, limits, injection (in apps/ai-service venv)
 ```
 
 The integration suite replays all 29 golden cases from the independent Python oracle through the
@@ -97,9 +112,9 @@ See [sample-data/README.md](sample-data/README.md) for the dataset and seeded sc
 ```
 apps/web          React dashboard (M3 ✓) and AI Analyst (M5)
 apps/api          ASP.NET Core analytics API and tool endpoints (M2 ✓)
-apps/ai-service   FastAPI + LangGraph agent (M4)
+apps/ai-service   FastAPI + LangGraph agent (M4 ✓)
 sample-data       generator, CSVs, metric oracle, golden values (M1 ✓)
-tests/            data (M1 ✓), backend (M2 ✓), ai, evaluation
+tests/            data (M1 ✓), backend (M2 ✓), ai (M4 ✓), evaluation
 docs/             architecture, ADRs, screenshots
 ```
 

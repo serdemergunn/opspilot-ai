@@ -384,7 +384,7 @@ exists, the API decides what is allowed.
 | **M1** ✓ | Data foundation | Deterministic generator, committed CSVs, independent metric oracle, golden values, tests, CI | Python 3.12+ (stdlib only) |
 | **M2** ✓ | Analytics API | EF Core schema + migrations, CSV seeder, 4 dashboard endpoints, 3 tool endpoints, xUnit unit tests + golden parity (Testcontainers), Compose with SQL Server + API | .NET 8 SDK, Docker |
 | **M3** ✓ | Dashboard | React Overview page against M2, loading/empty/error states | Node 20+ |
-| M4 | AI service | FastAPI, Pydantic tool clients, LangGraph graph, `DeterministicProvider`, Anthropic provider, grounding check, pytest with fake provider and stubbed API | Python 3.12 |
+| **M4** ✓ | AI service | FastAPI, Pydantic tool clients, LangGraph graph, `DeterministicProvider`, Anthropic provider, grounding check, pytest with fake provider and stubbed API | Python 3.12 |
 | M5 | AI Analyst + E2E | Chat page, chart from tool results, tool list, `/api/chat` proxy, full Compose, **Phase 1 acceptance** | all |
 
 Phases 2–5 follow the brief; each will get its own plan section when Phase 1 is accepted.

@@ -38,5 +38,21 @@ services:
     ports:
       - "127.0.0.1:8080:8080"
 
+  ai-service:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/ai-service.Dockerfile
+    depends_on:
+      - api
+    environment:
+      OPSPILOT_API_URL: http://api:8080
+      OPSPILOT_SERVICE_KEY: ${OPSPILOT_SERVICE_KEY:?Set OPSPILOT_SERVICE_KEY in .env}
+      # demo (default): deterministic, clearly labeled answers, no API key needed. live: Claude via the Anthropic API.
+      OPSPILOT_MODE: ${OPSPILOT_MODE:-demo}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+    ports:
+      # Local debugging only; in Milestone 5 the browser reaches the agent through the API's /api/chat.
+      - "127.0.0.1:8090:8090"
+
 volumes:
   sqldata:

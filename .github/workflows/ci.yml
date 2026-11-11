@@ -52,3 +52,16 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run build
+
+  ai-service:
+    name: AI service (agent, tools, grounding)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install the locked dependency tree
+        run: pip install --no-deps -r apps/ai-service/requirements.lock
+      - name: Test (fake API backed by the metric oracle; live-API tests skip without OPSPILOT_LIVE_API_URL)
+        run: python -m pytest tests/ai -q

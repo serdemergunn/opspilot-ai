@@ -1,0 +1,23 @@
+[project]
+name = "opspilot-ai-service"
+version = "0.1.0"
+description = "OpsPilot AI agent service: LangGraph orchestration over allowlisted, read-only analytics tools"
+requires-python = ">=3.12"
+# Direct dependencies. Exact, tested versions of the full tree are in requirements.lock.
+dependencies = [
+  "anthropic==2.8.0",
+  "fastapi==0.162.4",
+  "httpx==0.28.1",
+  "langgraph==1.2.20",
+  "pydantic==2.14.3",
+  "uvicorn[standard]==0.54.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest==9.2.0"]
+
+[tool.setuptools.packages.find]
+include = ["opspilot_ai*"]
+
+[tool.pytest.ini_options]
+testpaths = ["../../tests/ai"]
