@@ -81,7 +81,7 @@ limits, failure handling and evidence pipeline. It does not exercise LLM plannin
 | AI service | `python -m pytest tests/ai` | **98 passed**, 6 skipped. The skipped tests are `test_live_llm.py` and need an API key. The 2 live-API contract tests ran against the running stack and passed. |
 | Web | `npm test` | **13 passed** |
 | Python coverage (AI service) | `coverage run -m pytest tests/ai` | 95% of 1,112 statements |
-| GitHub Actions | push to `main` | Recorded in section 9 once the run completes |
+| GitHub Actions (Ubuntu, Python 3.12, Node 20) | push of `12972b1` to `main` | **4 of 4 jobs passed**: [run 43035943674](https://github.com/serdemergunn/opspilot-ai/actions/runs/43035943674) |
 
 New tests added in this audit:
 - grounding regressions;
@@ -225,4 +225,12 @@ Everything else is in the Phase 2 roadmap below.
 
 ## 9. CI
 
-Pending: updated with the run for this commit.
+[Run 43035943674](https://github.com/serdemergunn/opspilot-ai/actions/runs/43035943674) on `12972b1`, the commit
+containing every fix above, passed all four jobs:
+
+- dataset and metric oracle;
+- .NET API, unit and SQL Server integration;
+- web dashboard, typecheck, unit tests and build;
+- AI service.
+
+The README's CI badge reflects the latest run on `main`.
