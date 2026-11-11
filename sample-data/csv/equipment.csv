@@ -1,0 +1,25 @@
+EquipmentCode,LineCode,Name,EquipmentType
+L01-EQ01,L01,Conveyor,Conveyor
+L01-EQ02,L01,Robotic Arm,Robot
+L01-EQ03,L01,Screwdriving Station,Station
+L01-EQ04,L01,Vision Inspector,Inspection
+L02-EQ01,L02,Conveyor,Conveyor
+L02-EQ02,L02,Robotic Arm,Robot
+L02-EQ03,L02,Screwdriving Station,Station
+L02-EQ04,L02,Vision Inspector,Inspection
+L03-EQ01,L03,Filler,Filler
+L03-EQ02,L03,Seal Bar Unit,Sealer
+L03-EQ03,L03,Labeler,Labeler
+L03-EQ04,L03,Palletizer,Robot
+L04-EQ01,L04,CNC Mill,CNC
+L04-EQ02,L04,CNC Lathe,CNC
+L04-EQ03,L04,Coolant System,Utility
+L04-EQ04,L04,Tool Changer,Tooling
+L05-EQ01,L05,CNC Mill,CNC
+L05-EQ02,L05,CNC Lathe,CNC
+L05-EQ03,L05,Coolant System,Utility
+L05-EQ04,L05,Tool Changer,Tooling
+L06-EQ01,L06,Filler,Filler
+L06-EQ02,L06,Seal Bar Unit,Sealer
+L06-EQ03,L06,Labeler,Labeler
+L06-EQ04,L06,Palletizer,Robot

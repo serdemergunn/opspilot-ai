@@ -1,0 +1,8 @@
+Code,Name,Category,IsPlanned
+MECH_FAILURE,Mechanical failure,Equipment,false
+ELEC_FAULT,Electrical fault,Equipment,false
+MATERIAL_SHORTAGE,Material shortage,Logistics,false
+QUALITY_HOLD,Quality hold,Quality,false
+OPERATOR_UNAVAIL,Operator unavailable,Staffing,false
+CHANGEOVER,Product changeover,Planned,true
+PLANNED_MAINT,Planned maintenance,Planned,true

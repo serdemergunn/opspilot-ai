@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  data:
+    name: Dataset and metric oracle
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Golden values are current
+        run: python sample-data/reference_metrics.py --check
+      - name: Unit tests
+        run: python -m unittest discover -s tests/data -t . -v
+
+  api:
+    name: .NET API (unit + SQL Server integration)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - name: Build
+        run: dotnet build OpsPilot.sln -c Release
+      - name: Test (Testcontainers starts SQL Server)
+        run: dotnet test OpsPilot.sln -c Release --no-build --logger "console;verbosity=normal"

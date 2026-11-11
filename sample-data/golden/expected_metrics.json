@@ -1,0 +1,3338 @@
+{
+  "metric_definitions_version": "1",
+  "reference_time_utc": "2026-11-11T00:00:00Z",
+  "plant_timezone": "UTC",
+  "cases": [
+    {
+      "id": "production_summary.last_7_days",
+      "tool": "get_production_summary",
+      "arguments": {
+        "start_date": "2026-11-04",
+        "end_date": "2026-11-10"
+      },
+      "expected": {
+        "totals": {
+          "planned_quantity": 118440,
+          "produced_quantity": 96529,
+          "defective_quantity": 2074,
+          "good_quantity": 94455,
+          "attainment_pct": 81.5,
+          "defect_rate_pct": 2.1,
+          "downtime_minutes": 7202,
+          "downtime_hours": 120.0,
+          "record_count": 1008
+        },
+        "by_line": [
+          {
+            "line_code": "L01",
+            "line_name": "Line 01",
+            "planned_quantity": 20160,
+            "produced_quantity": 17162,
+            "defective_quantity": 236,
+            "good_quantity": 16926,
+            "attainment_pct": 85.1,
+            "defect_rate_pct": 1.4,
+            "downtime_minutes": 613,
+            "downtime_hours": 10.2,
+            "record_count": 168
+          },
+          {
+            "line_code": "L02",
+            "line_name": "Line 02",
+            "planned_quantity": 18480,
+            "produced_quantity": 14514,
+            "defective_quantity": 203,
+            "good_quantity": 14311,
+            "attainment_pct": 78.5,
+            "defect_rate_pct": 1.4,
+            "downtime_minutes": 1348,
+            "downtime_hours": 22.5,
+            "record_count": 168
+          },
+          {
+            "line_code": "L03",
+            "line_name": "Line 03",
+            "planned_quantity": 30240,
+            "produced_quantity": 24910,
+            "defective_quantity": 1007,
+            "good_quantity": 23903,
+            "attainment_pct": 82.4,
+            "defect_rate_pct": 4.0,
+            "downtime_minutes": 912,
+            "downtime_hours": 15.2,
+            "record_count": 168
+          },
+          {
+            "line_code": "L04",
+            "line_name": "Line 04",
+            "planned_quantity": 10080,
+            "produced_quantity": 6455,
+            "defective_quantity": 127,
+            "good_quantity": 6328,
+            "attainment_pct": 64.0,
+            "defect_rate_pct": 2.0,
+            "downtime_minutes": 2903,
+            "downtime_hours": 48.4,
+            "record_count": 168
+          },
+          {
+            "line_code": "L05",
+            "line_name": "Line 05",
+            "planned_quantity": 10920,
+            "produced_quantity": 8988,
+            "defective_quantity": 167,
+            "good_quantity": 8821,
+            "attainment_pct": 82.3,
+            "defect_rate_pct": 1.9,
+            "downtime_minutes": 881,
+            "downtime_hours": 14.7,
+            "record_count": 168
+          },
+          {
+            "line_code": "L06",
+            "line_name": "Line 06",
+            "planned_quantity": 28560,
+            "produced_quantity": 24500,
+            "defective_quantity": 334,
+            "good_quantity": 24166,
+            "attainment_pct": 85.8,
+            "defect_rate_pct": 1.4,
+            "downtime_minutes": 545,
+            "downtime_hours": 9.1,
+            "record_count": 168
+          }
+        ]
+      }
+    },
+    {
+      "id": "downtime_by_line.last_7_days",
+      "tool": "get_downtime_by_line",
+      "arguments": {
+        "start_date": "2026-11-04",
+        "end_date": "2026-11-10"
+      },
+      "expected": {
+        "total_downtime_minutes": 7202,
+        "items": [
+          {
+            "line_code": "L04",
+            "line_name": "Line 04",
+            "downtime_minutes": 2903,
+            "downtime_hours": 48.4,
+            "event_count": 35,
+            "share_pct": 40.3
+          },
+          {
+            "line_code": "L02",
+            "line_name": "Line 02",
+            "downtime_minutes": 1348,
+            "downtime_hours": 22.5,
+            "event_count": 21,
+            "share_pct": 18.7
+          },
+          {
+            "line_code": "L03",
+            "line_name": "Line 03",
+            "downtime_minutes": 912,
+            "downtime_hours": 15.2,
+            "event_count": 16,
+            "share_pct": 12.7
+          },
+          {
+            "line_code": "L05",
+            "line_name": "Line 05",
+            "downtime_minutes": 881,
+            "downtime_hours": 14.7,
+            "event_count": 20,
+            "share_pct": 12.2
+          },
+          {
+            "line_code": "L01",
+            "line_name": "Line 01",
+            "downtime_minutes": 613,
+            "downtime_hours": 10.2,
+            "event_count": 14,
+            "share_pct": 8.5
+          },
+          {
+            "line_code": "L06",
+            "line_name": "Line 06",
+            "downtime_minutes": 545,
+            "downtime_hours": 9.1,
+            "event_count": 14,
+            "share_pct": 7.6
+          }
+        ],
+        "omitted_count": 0
+      }
+    },
+    {
+      "id": "downtime_by_line.last_7_days.unplanned",
+      "tool": "get_downtime_by_line",
+      "arguments": {
+        "start_date": "2026-11-04",
+        "end_date": "2026-11-10",
+        "include_planned": false
+      },
+      "expected": {
+        "total_downtime_minutes": 5032,
+        "items": [
+          {
+            "line_code": "L04",
+            "line_name": "Line 04",
+            "downtime_minutes": 2682,
+            "downtime_hours": 44.7,
+            "event_count": 30,
+            "share_pct": 53.3
+          },
+          {
+            "line_code": "L02",
+            "line_name": "Line 02",
+            "downtime_minutes": 924,
+            "downtime_hours": 15.4,
+            "event_count": 13,
+            "share_pct": 18.4
+          },
+          {
+            "line_code": "L05",
+            "line_name": "Line 05",
+            "downtime_minutes": 522,
+            "downtime_hours": 8.7,
+            "event_count": 13,
+            "share_pct": 10.4
+          },
+          {
+            "line_code": "L03",
+            "line_name": "Line 03",
+            "downtime_minutes": 491,
+            "downtime_hours": 8.2,
+            "event_count": 8,
+            "share_pct": 9.8
+          },
+          {
+            "line_code": "L06",
+            "line_name": "Line 06",
+            "downtime_minutes": 218,
+            "downtime_hours": 3.6,
+            "event_count": 7,
+            "share_pct": 4.3
+          },
+          {
+            "line_code": "L01",
+            "line_name": "Line 01",
+            "downtime_minutes": 195,
+            "downtime_hours": 3.3,
+            "event_count": 7,
+            "share_pct": 3.9
+          }
+        ],
+        "omitted_count": 0
+      }
+    },
+    {
+      "id": "downtime_reasons.last_7_days",
+      "tool": "get_downtime_reasons",
+      "arguments": {
+        "start_date": "2026-11-04",
+        "end_date": "2026-11-10"
+      },
+      "expected": {
+        "total_downtime_minutes": 7202,
+        "items": [
+          {
+            "reason_code": "MECH_FAILURE",
+            "reason_name": "Mechanical failure",
+            "category": "Equipment",
+            "is_planned": false,
+            "downtime_minutes": 2987,
+            "downtime_hours": 49.8,
+            "event_count": 35,
+            "share_pct": 41.5
+          },
+          {
+            "reason_code": "CHANGEOVER",
+            "reason_name": "Product changeover",
+            "category": "Planned",
+            "is_planned": true,
+            "downtime_minutes": 1404,
+            "downtime_hours": 23.4,
+            "event_count": 37,
+            "share_pct": 19.5
+          },
+          {
+            "reason_code": "ELEC_FAULT",
+            "reason_name": "Electrical fault",
+            "category": "Equipment",
+            "is_planned": false,
+            "downtime_minutes": 897,
+            "downtime_hours": 15.0,
+            "event_count": 13,
+            "share_pct": 12.5
+          },
+          {
+            "reason_code": "PLANNED_MAINT",
+            "reason_name": "Planned maintenance",
+            "category": "Planned",
+            "is_planned": true,
+            "downtime_minutes": 766,
+            "downtime_hours": 12.8,
+            "event_count": 5,
+            "share_pct": 10.6
+          },
+          {
+            "reason_code": "QUALITY_HOLD",
+            "reason_name": "Quality hold",
+            "category": "Quality",
+            "is_planned": false,
+            "downtime_minutes": 540,
+            "downtime_hours": 9.0,
+            "event_count": 9,
+            "share_pct": 7.5
+          },
+          {
+            "reason_code": "MATERIAL_SHORTAGE",
+            "reason_name": "Material shortage",
+            "category": "Logistics",
+            "is_planned": false,
+            "downtime_minutes": 422,
+            "downtime_hours": 7.0,
+            "event_count": 10,
+            "share_pct": 5.9
+          },
+          {
+            "reason_code": "OPERATOR_UNAVAIL",
+            "reason_name": "Operator unavailable",
+            "category": "Staffing",
+            "is_planned": false,
+            "downtime_minutes": 186,
+            "downtime_hours": 3.1,
+            "event_count": 11,
+            "share_pct": 2.6
+          }
+        ],
+        "omitted_count": 0
+      }
+    },
+    {
+      "id": "daily_trend.last_7_days",
+      "tool": "get_daily_production_trend",
+      "arguments": {
+        "start_date": "2026-11-04",
+        "end_date": "2026-11-10"
+      },
+      "expected": {
+        "items": [
+          {
+            "date": "2026-11-04",
+            "planned_quantity": 16920,
+            "produced_quantity": 13993,
+            "defective_quantity": 282,
+            "good_quantity": 13711,
+            "attainment_pct": 82.7,
+            "defect_rate_pct": 2.0,
+            "downtime_minutes": 869
+          },
+          {
+            "date": "2026-11-05",
+            "planned_quantity": 16920,
+            "produced_quantity": 14325,
+            "defective_quantity": 304,
+            "good_quantity": 14021,
+            "attainment_pct": 84.7,
+            "defect_rate_pct": 2.1,
+            "downtime_minutes": 805
+          },
+          {
+            "date": "2026-11-06",
+            "planned_quantity": 16920,
+            "produced_quantity": 14103,
+            "defective_quantity": 312,
+            "good_quantity": 13791,
+            "attainment_pct": 83.4,
+            "defect_rate_pct": 2.2,
+            "downtime_minutes": 853
+          },
+          {
+            "date": "2026-11-07",
+            "planned_quantity": 16920,
+            "produced_quantity": 14248,
+            "defective_quantity": 304,
+            "good_quantity": 13944,
+            "attainment_pct": 84.2,
+            "defect_rate_pct": 2.1,
+            "downtime_minutes": 839
+          },
+          {
+            "date": "2026-11-08",
+            "planned_quantity": 16920,
+            "produced_quantity": 12298,
+            "defective_quantity": 261,
+            "good_quantity": 12037,
+            "attainment_pct": 72.7,
+            "defect_rate_pct": 2.1,
+            "downtime_minutes": 1680
+          },
+          {
+            "date": "2026-11-09",
+            "planned_quantity": 16920,
+            "produced_quantity": 14065,
+            "defective_quantity": 301,
+            "good_quantity": 13764,
+            "attainment_pct": 83.1,
+            "defect_rate_pct": 2.1,
+            "downtime_minutes": 938
+          },
+          {
+            "date": "2026-11-10",
+            "planned_quantity": 16920,
+            "produced_quantity": 13497,
+            "defective_quantity": 310,
+            "good_quantity": 13187,
+            "attainment_pct": 79.8,
+            "defect_rate_pct": 2.3,
+            "downtime_minutes": 1218
+          }
+        ]
+      }
+    },
+    {
+      "id": "production_summary.yesterday",
+      "tool": "get_production_summary",
+      "arguments": {
+        "start_date": "2026-11-10",
+        "end_date": "2026-11-10"
+      },
+      "expected": {
+        "totals": {
+          "planned_quantity": 16920,
+          "produced_quantity": 13497,
+          "defective_quantity": 310,
+          "good_quantity": 13187,
+          "attainment_pct": 79.8,
+          "defect_rate_pct": 2.3,
+          "downtime_minutes": 1218,
+          "downtime_hours": 20.3,
+          "record_count": 144
+        },
+        "by_line": [
+          {
+            "line_code": "L01",
+            "line_name": "Line 01",
+            "planned_quantity": 2880,
+            "produced_quantity": 2475,
+            "defective_quantity": 36,
+            "good_quantity": 2439,
+            "attainment_pct": 85.9,
+            "defect_rate_pct": 1.5,
+            "downtime_minutes": 63,
+            "downtime_hours": 1.1,
+            "record_count": 24
+          },
+          {
+            "line_code": "L02",
+            "line_name": "Line 02",
+            "planned_quantity": 2640,
+            "produced_quantity": 1581,
+            "defective_quantity": 21,
+            "good_quantity": 1560,
+            "attainment_pct": 59.9,
+            "defect_rate_pct": 1.3,
+            "downtime_minutes": 493,
+            "downtime_hours": 8.2,
+            "record_count": 24
+          },
+          {
+            "line_code": "L03",
+            "line_name": "Line 03",
+            "planned_quantity": 4320,
+            "produced_quantity": 3579,
+            "defective_quantity": 160,
+            "good_quantity": 3419,
+            "attainment_pct": 82.8,
+            "defect_rate_pct": 4.5,
+            "downtime_minutes": 124,
+            "downtime_hours": 2.1,
+            "record_count": 24
+          },
+          {
+            "line_code": "L04",
+            "line_name": "Line 04",
+            "planned_quantity": 1440,
+            "produced_quantity": 889,
+            "defective_quantity": 17,
+            "good_quantity": 872,
+            "attainment_pct": 61.7,
+            "defect_rate_pct": 1.9,
+            "downtime_minutes": 462,
+            "downtime_hours": 7.7,
+            "record_count": 24
+          },
+          {
+            "line_code": "L05",
+            "line_name": "Line 05",
+            "planned_quantity": 1560,
+            "produced_quantity": 1356,
+            "defective_quantity": 28,
+            "good_quantity": 1328,
+            "attainment_pct": 86.9,
+            "defect_rate_pct": 2.1,
+            "downtime_minutes": 50,
+            "downtime_hours": 0.8,
+            "record_count": 24
+          },
+          {
+            "line_code": "L06",
+            "line_name": "Line 06",
+            "planned_quantity": 4080,
+            "produced_quantity": 3617,
+            "defective_quantity": 48,
+            "good_quantity": 3569,
+            "attainment_pct": 88.7,
+            "defect_rate_pct": 1.3,
+            "downtime_minutes": 26,
+            "downtime_hours": 0.4,
+            "record_count": 24
+          }
+        ]
+      }
+    },
+    {
+      "id": "downtime_by_line.yesterday",
+      "tool": "get_downtime_by_line",
+      "arguments": {
+        "start_date": "2026-11-10",
+        "end_date": "2026-11-10"
+      },
+      "expected": {
+        "total_downtime_minutes": 1218,
+        "items": [
+          {
+            "line_code": "L02",
+            "line_name": "Line 02",
+            "downtime_minutes": 493,
+            "downtime_hours": 8.2,
+            "event_count": 4,
+            "share_pct": 40.5
+          },
+          {
+            "line_code": "L04",
+            "line_name": "Line 04",
+            "downtime_minutes": 462,
+            "downtime_hours": 7.7,
+            "event_count": 6,
+            "share_pct": 37.9
+          },
+          {
+            "line_code": "L03",
+            "line_name": "Line 03",
+            "downtime_minutes": 124,
+            "downtime_hours": 2.1,
+            "event_count": 2,
+            "share_pct": 10.2
+          },
+          {
+            "line_code": "L01",
+            "line_name": "Line 01",
+            "downtime_minutes": 63,
+            "downtime_hours": 1.1,
+            "event_count": 2,
+            "share_pct": 5.2
+          },
+          {
+            "line_code": "L05",
+            "line_name": "Line 05",
+            "downtime_minutes": 50,
+            "downtime_hours": 0.8,
+            "event_count": 1,
+            "share_pct": 4.1
+          },
+          {
+            "line_code": "L06",
+            "line_name": "Line 06",
+            "downtime_minutes": 26,
+            "downtime_hours": 0.4,
+            "event_count": 1,
+            "share_pct": 2.1
+          }
+        ],
+        "omitted_count": 0
+      }
+    },
+    {
+      "id": "downtime_by_line.yesterday.unplanned",
+      "tool": "get_downtime_by_line",
+      "arguments": {
+        "start_date": "2026-11-10",
+        "end_date": "2026-11-10",
+        "include_planned": false
+      },
+      "expected": {
+        "total_downtime_minutes": 951,
+        "items": [
+          {
+            "line_code": "L02",
+            "line_name": "Line 02",
+            "downtime_minutes": 449,
+            "downtime_hours": 7.5,
+            "event_count": 3,
+            "share_pct": 47.2
+          },
+          {
+            "line_code": "L04",
+            "line_name": "Line 04",
+            "downtime_minutes": 408,
+            "downtime_hours": 6.8,
+            "event_count": 5,
+            "share_pct": 42.9
+          },
+          {
+            "line_code": "L03",
+            "line_name": "Line 03",
+            "downtime_minutes": 70,
+            "downtime_hours": 1.2,
+            "event_count": 1,
+            "share_pct": 7.4
+          },
+          {
+            "line_code": "L01",
+            "line_name": "Line 01",
+            "downtime_minutes": 24,
+            "downtime_hours": 0.4,
+            "event_count": 1,
+            "share_pct": 2.5
+          },
+          {
+            "line_code": "L05",
+            "line_name": "Line 05",
+            "downtime_minutes": 0,
+            "downtime_hours": 0.0,
+            "event_count": 0,
+            "share_pct": 0.0
+          },
+          {
+            "line_code": "L06",
+            "line_name": "Line 06",
+            "downtime_minutes": 0,
+            "downtime_hours": 0.0,
+            "event_count": 0,
+            "share_pct": 0.0
+          }
+        ],
+        "omitted_count": 0
+      }
+    },
+    {
+      "id": "downtime_reasons.yesterday",
+      "tool": "get_downtime_reasons",
+      "arguments": {
+        "start_date": "2026-11-10",
+        "end_date": "2026-11-10"
+      },
+      "expected": {
+        "total_downtime_minutes": 1218,
+        "items": [
+          {
+            "reason_code": "ELEC_FAULT",
+            "reason_name": "Electrical fault",
+            "category": "Equipment",
+            "is_planned": false,
+            "downtime_minutes": 435,
+            "downtime_hours": 7.3,
+            "event_count": 3,
+            "share_pct": 35.7
+          },
+          {
+            "reason_code": "MECH_FAILURE",
+            "reason_name": "Mechanical failure",
+            "category": "Equipment",
+            "is_planned": false,
+            "downtime_minutes": 296,
+            "downtime_hours": 4.9,
+            "event_count": 3,
+            "share_pct": 24.3
+          },
+          {
+            "reason_code": "CHANGEOVER",
+            "reason_name": "Product changeover",
+            "category": "Planned",
+            "is_planned": true,
+            "downtime_minutes": 267,
+            "downtime_hours": 4.5,
+            "event_count": 6,
+            "share_pct": 21.9
+          },
+          {
+            "reason_code": "QUALITY_HOLD",
+            "reason_name": "Quality hold",
+            "category": "Quality",
+            "is_planned": false,
+            "downtime_minutes": 150,
+            "downtime_hours": 2.5,
+            "event_count": 3,
+            "share_pct": 12.3
+          },
+          {
+            "reason_code": "MATERIAL_SHORTAGE",
+            "reason_name": "Material shortage",
+            "category": "Logistics",
+            "is_planned": false,
+            "downtime_minutes": 70,
+            "downtime_hours": 1.2,
+            "event_count": 1,
+            "share_pct": 5.7
+          }
+        ],
+        "omitted_count": 0
+      }
+    },
+    {
+      "id": "daily_trend.yesterday",
+      "tool": "get_daily_production_trend",
+      "arguments": {
+        "start_date": "2026-11-10",
+        "end_date": "2026-11-10"
+      },
+      "expected": {
+        "items": [
+          {
+            "date": "2026-11-10",
+            "planned_quantity": 16920,
+            "produced_quantity": 13497,
+            "defective_quantity": 310,
+            "good_quantity": 13187,
+            "attainment_pct": 79.8,
+            "defect_rate_pct": 2.3,
+            "downtime_minutes": 1218
+          }
+        ]
+      }
+    },
+    {
+      "id": "production_summary.day_before_yesterday",
+      "tool": "get_production_summary",
+      "arguments": {
+        "start_date": "2026-11-09",
+        "end_date": "2026-11-09"
+      },
+      "expected": {
+        "totals": {
+          "planned_quantity": 16920,
+          "produced_quantity": 14065,
+          "defective_quantity": 301,
+          "good_quantity": 13764,
+          "attainment_pct": 83.1,
+          "defect_rate_pct": 2.1,
+          "downtime_minutes": 938,
+          "downtime_hours": 15.6,
+          "record_count": 144
+        },
+        "by_line": [
+          {
+            "line_code": "L01",
+            "line_name": "Line 01",
+            "planned_quantity": 2880,
+            "produced_quantity": 2449,
+            "defective_quantity": 30,
+            "good_quantity": 2419,
+            "attainment_pct": 85.0,
+            "defect_rate_pct": 1.2,
+            "downtime_minutes": 87,
+            "downtime_hours": 1.5,
+            "record_count": 24
+          },
+          {
+            "line_code": "L02",
+            "line_name": "Line 02",
+            "planned_quantity": 2640,
+            "produced_quantity": 2254,
+            "defective_quantity": 31,
+            "good_quantity": 2223,
+            "attainment_pct": 85.4,
+            "defect_rate_pct": 1.4,
+            "downtime_minutes": 81,
+            "downtime_hours": 1.4,
+            "record_count": 24
+          },
+          {
+            "line_code": "L03",
+            "line_name": "Line 03",
+            "planned_quantity": 4320,
+            "produced_quantity": 3683,
+            "defective_quantity": 151,
+            "good_quantity": 3532,
+            "attainment_pct": 85.3,
+            "defect_rate_pct": 4.1,
+            "downtime_minutes": 92,
+            "downtime_hours": 1.5,
+            "record_count": 24
+          },
+          {
+            "line_code": "L04",
+            "line_name": "Line 04",
+            "planned_quantity": 1440,
+            "produced_quantity": 746,
+            "defective_quantity": 16,
+            "good_quantity": 730,
+            "attainment_pct": 51.8,
+            "defect_rate_pct": 2.1,
+            "downtime_minutes": 605,
+            "downtime_hours": 10.1,
+            "record_count": 24
+          },
+          {
+            "line_code": "L05",
+            "line_name": "Line 05",
+            "planned_quantity": 1560,
+            "produced_quantity": 1392,
+            "defective_quantity": 26,
+            "good_quantity": 1366,
+            "attainment_pct": 89.2,
+            "defect_rate_pct": 1.9,
+            "downtime_minutes": 24,
+            "downtime_hours": 0.4,
+            "record_count": 24
+          },
+          {
+            "line_code": "L06",
+            "line_name": "Line 06",
+            "planned_quantity": 4080,
+            "produced_quantity": 3541,
+            "defective_quantity": 47,
+            "good_quantity": 3494,
+            "attainment_pct": 86.8,
+            "defect_rate_pct": 1.3,
+            "downtime_minutes": 49,
+            "downtime_hours": 0.8,
+            "record_count": 24
+          }
+        ]
+      }
+    },
+    {
+      "id": "downtime_by_line.day_before_yesterday",
+      "tool": "get_downtime_by_line",
+      "arguments": {
+        "start_date": "2026-11-09",
+        "end_date": "2026-11-09"
+      },
+      "expected": {
+        "total_downtime_minutes": 938,
+        "items": [
+          {
+            "line_code": "L04",
+            "line_name": "Line 04",
+            "downtime_minutes": 605,
+            "downtime_hours": 10.1,
+            "event_count": 7,
+            "share_pct": 64.5
+          },
+          {
+            "line_code": "L03",
+            "line_name": "Line 03",
+            "downtime_minutes": 92,
+            "downtime_hours": 1.5,
+            "event_count": 2,
+            "share_pct": 9.8
+          },
+          {
+            "line_code": "L01",
+            "line_name": "Line 01",
+            "downtime_minutes": 87,
+            "downtime_hours": 1.5,
+            "event_count": 3,
+            "share_pct": 9.3
+          },
+          {
+            "line_code": "L02",
+            "line_name": "Line 02",
+            "downtime_minutes": 81,
+            "downtime_hours": 1.4,
+            "event_count": 2,
+            "share_pct": 8.6
+          },
+          {
+            "line_code": "L06",
+            "line_name": "Line 06",
+            "downtime_minutes": 49,
+            "downtime_hours": 0.8,
+            "event_count": 2,
+            "share_pct": 5.2
+          },
+          {
+            "line_code": "L05",
+            "line_name": "Line 05",
+            "downtime_minutes": 24,
+            "downtime_hours": 0.4,
+            "event_count": 1,
+            "share_pct": 2.6
+          }
+        ],
+        "omitted_count": 0
+      }
+    },
+    {
+      "id": "downtime_by_line.day_before_yesterday.unplanned",
+      "tool": "get_downtime_by_line",
+      "arguments": {
+        "start_date": "2026-11-09",
+        "end_date": "2026-11-09",
+        "include_planned": false
+      },
+      "expected": {
+        "total_downtime_minutes": 673,
+        "items": [
+          {
+            "line_code": "L04",
+            "line_name": "Line 04",
+            "downtime_minutes": 551,
+            "downtime_hours": 9.2,
+            "event_count": 6,
+            "share_pct": 81.9
+          },
+          {
+            "line_code": "L02",
+            "line_name": "Line 02",
+            "downtime_minutes": 39,
+            "downtime_hours": 0.7,
+            "event_count": 1,
+            "share_pct": 5.8
+          },
+          {
+            "line_code": "L03",
+            "line_name": "Line 03",
+            "downtime_minutes": 38,
+            "downtime_hours": 0.6,
+            "event_count": 1,
+            "share_pct": 5.6
+          },
+          {
+            "line_code": "L01",
+            "line_name": "Line 01",
+            "downtime_minutes": 29,
+            "downtime_hours": 0.5,
+            "event_count": 2,
+            "share_pct": 4.3
+          },
+          {
+            "line_code": "L06",
+            "line_name": "Line 06",
+            "downtime_minutes": 16,
+            "downtime_hours": 0.3,
+            "event_count": 1,
+            "share_pct": 2.4
+          },
+          {
+            "line_code": "L05",
+            "line_name": "Line 05",
+            "downtime_minutes": 0,
+            "downtime_hours": 0.0,
+            "event_count": 0,
+            "share_pct": 0.0
+          }
+        ],
+        "omitted_count": 0
+      }
+    },
+    {
+      "id": "downtime_reasons.day_before_yesterday",
+      "tool": "get_downtime_reasons",
+      "arguments": {
+        "start_date": "2026-11-09",
+        "end_date": "2026-11-09"
+      },
+      "expected": {
+        "total_downtime_minutes": 938,
+        "items": [
+          {
+            "reason_code": "MECH_FAILURE",
+            "reason_name": "Mechanical failure",
+            "category": "Equipment",
+            "is_planned": false,
+            "downtime_minutes": 489,
+            "downtime_hours": 8.2,
+            "event_count": 4,
+            "share_pct": 52.1
+          },
+          {
+            "reason_code": "CHANGEOVER",
+            "reason_name": "Product changeover",
+            "category": "Planned",
+            "is_planned": true,
+            "downtime_minutes": 265,
+            "downtime_hours": 4.4,
+            "event_count": 6,
+            "share_pct": 28.3
+          },
+          {
+            "reason_code": "MATERIAL_SHORTAGE",
+            "reason_name": "Material shortage",
+            "category": "Logistics",
+            "is_planned": false,
+            "downtime_minutes": 107,
+            "downtime_hours": 1.8,
+            "event_count": 3,
+            "share_pct": 11.4
+          },
+          {
+            "reason_code": "ELEC_FAULT",
+            "reason_name": "Electrical fault",
+            "category": "Equipment",
+            "is_planned": false,
+            "downtime_minutes": 69,
+            "downtime_hours": 1.2,
+            "event_count": 3,
+            "share_pct": 7.4
+          },
+          {
+            "reason_code": "OPERATOR_UNAVAIL",
+            "reason_name": "Operator unavailable",
+            "category": "Staffing",
+            "is_planned": false,
+            "downtime_minutes": 8,
+            "downtime_hours": 0.1,
+            "event_count": 1,
+            "share_pct": 0.9
+          }
+        ],
+        "omitted_count": 0
+      }
+    },
+    {
+      "id": "daily_trend.day_before_yesterday",
+      "tool": "get_daily_production_trend",
+      "arguments": {
+        "start_date": "2026-11-09",
+        "end_date": "2026-11-09"
+      },
+      "expected": {
+        "items": [
+          {
+            "date": "2026-11-09",
+            "planned_quantity": 16920,
+            "produced_quantity": 14065,
+            "defective_quantity": 301,
+            "good_quantity": 13764,
+            "attainment_pct": 83.1,
+            "defect_rate_pct": 2.1,
+            "downtime_minutes": 938
+          }
+        ]
+      }
+    },
+    {
+      "id": "production_summary.last_30_days",
+      "tool": "get_production_summary",
+      "arguments": {
+        "start_date": "2026-10-12",
+        "end_date": "2026-11-10"
+      },
+      "expected": {
+        "totals": {
+          "planned_quantity": 507600,
+          "produced_quantity": 421028,
+          "defective_quantity": 9043,
+          "good_quantity": 411985,
+          "attainment_pct": 82.9,
+          "defect_rate_pct": 2.1,
+          "downtime_minutes": 24252,
+          "downtime_hours": 404.2,
+          "record_count": 4320
+        },
+        "by_line": [
+          {
+            "line_code": "L01",
+            "line_name": "Line 01",
+            "planned_quantity": 86400,
+            "produced_quantity": 72833,
+            "defective_quantity": 935,
+            "good_quantity": 71898,
+            "attainment_pct": 84.3,
+            "defect_rate_pct": 1.3,
+            "downtime_minutes": 3027,
+            "downtime_hours": 50.5,
+            "record_count": 720
+          },
+          {
+            "line_code": "L02",
+            "line_name": "Line 02",
+            "planned_quantity": 79200,
+            "produced_quantity": 65774,
+            "defective_quantity": 932,
+            "good_quantity": 64842,
+            "attainment_pct": 83.0,
+            "defect_rate_pct": 1.4,
+            "downtime_minutes": 3568,
+            "downtime_hours": 59.5,
+            "record_count": 720
+          },
+          {
+            "line_code": "L03",
+            "line_name": "Line 03",
+            "planned_quantity": 129600,
+            "produced_quantity": 108282,
+            "defective_quantity": 4420,
+            "good_quantity": 103862,
+            "attainment_pct": 83.6,
+            "defect_rate_pct": 4.1,
+            "downtime_minutes": 3455,
+            "downtime_hours": 57.6,
+            "record_count": 720
+          },
+          {
+            "line_code": "L04",
+            "line_name": "Line 04",
+            "planned_quantity": 43200,
+            "produced_quantity": 32018,
+            "defective_quantity": 661,
+            "good_quantity": 31357,
+            "attainment_pct": 74.1,
+            "defect_rate_pct": 2.1,
+            "downtime_minutes": 7627,
+            "downtime_hours": 127.1,
+            "record_count": 720
+          },
+          {
+            "line_code": "L05",
+            "line_name": "Line 05",
+            "planned_quantity": 46800,
+            "produced_quantity": 38594,
+            "defective_quantity": 704,
+            "good_quantity": 37890,
+            "attainment_pct": 82.5,
+            "defect_rate_pct": 1.8,
+            "downtime_minutes": 3665,
+            "downtime_hours": 61.1,
+            "record_count": 720
+          },
+          {
+            "line_code": "L06",
+            "line_name": "Line 06",
+            "planned_quantity": 122400,
+            "produced_quantity": 103527,
+            "defective_quantity": 1391,
+            "good_quantity": 102136,
+            "attainment_pct": 84.6,
+            "defect_rate_pct": 1.3,
+            "downtime_minutes": 2910,
+            "downtime_hours": 48.5,
+            "record_count": 720
+          }
+        ]
+      }
+    },
+    {
+      "id": "downtime_by_line.last_30_days",
+      "tool": "get_downtime_by_line",
+      "arguments": {
+        "start_date": "2026-10-12",
+        "end_date": "2026-11-10"
+      },
+      "expected": {
+        "total_downtime_minutes": 24252,
+        "items": [
+          {
+            "line_code": "L04",
+            "line_name": "Line 04",
+            "downtime_minutes": 7627,
+            "downtime_hours": 127.1,
+            "event_count": 107,
+            "share_pct": 31.4
+          },
+          {
+            "line_code": "L05",
+            "line_name": "Line 05",
+            "downtime_minutes": 3665,
+            "downtime_hours": 61.1,
+            "event_count": 81,
+            "share_pct": 15.1
+          },
+          {
+            "line_code": "L02",
+            "line_name": "Line 02",
+            "downtime_minutes": 3568,
+            "downtime_hours": 59.5,
+            "event_count": 75,
+            "share_pct": 14.7
+          },
+          {
+            "line_code": "L03",
+            "line_name": "Line 03",
+            "downtime_minutes": 3455,
+            "downtime_hours": 57.6,
+            "event_count": 64,
+            "share_pct": 14.2
+          },
+          {
+            "line_code": "L01",
+            "line_name": "Line 01",
+            "downtime_minutes": 3027,
+            "downtime_hours": 50.5,
+            "event_count": 67,
+            "share_pct": 12.5
+          },
+          {
+            "line_code": "L06",
+            "line_name": "Line 06",
+            "downtime_minutes": 2910,
+            "downtime_hours": 48.5,
+            "event_count": 69,
+            "share_pct": 12.0
+          }
+        ],
+        "omitted_count": 0
+      }
+    },
+    {
+      "id": "downtime_by_line.last_30_days.unplanned",
+      "tool": "get_downtime_by_line",
+      "arguments": {
+        "start_date": "2026-10-12",
+        "end_date": "2026-11-10",
+        "include_planned": false
+      },
+      "expected": {
+        "total_downtime_minutes": 14685,
+        "items": [
+          {
+            "line_code": "L04",
+            "line_name": "Line 04",
+            "downtime_minutes": 6357,
+            "downtime_hours": 106.0,
+            "event_count": 82,
+            "share_pct": 43.3
+          },
+          {
+            "line_code": "L05",
+            "line_name": "Line 05",
+            "downtime_minutes": 2073,
+            "downtime_hours": 34.6,
+            "event_count": 49,
+            "share_pct": 14.1
+          },
+          {
+            "line_code": "L02",
+            "line_name": "Line 02",
+            "downtime_minutes": 1860,
+            "downtime_hours": 31.0,
+            "event_count": 42,
+            "share_pct": 12.7
+          },
+          {
+            "line_code": "L03",
+            "line_name": "Line 03",
+            "downtime_minutes": 1689,
+            "downtime_hours": 28.2,
+            "event_count": 31,
+            "share_pct": 11.5
+          },
+          {
+            "line_code": "L06",
+            "line_name": "Line 06",
+            "downtime_minutes": 1382,
+            "downtime_hours": 23.0,
+            "event_count": 39,
+            "share_pct": 9.4
+          },
+          {
+            "line_code": "L01",
+            "line_name": "Line 01",
+            "downtime_minutes": 1324,
+            "downtime_hours": 22.1,
+            "event_count": 35,
+            "share_pct": 9.0
+          }
+        ],
+        "omitted_count": 0
+      }
+    },
+    {
+      "id": "downtime_reasons.last_30_days",
+      "tool": "get_downtime_reasons",
+      "arguments": {
+        "start_date": "2026-10-12",
+        "end_date": "2026-11-10"
+      },
+      "expected": {
+        "total_downtime_minutes": 24252,
+        "items": [
+          {
+            "reason_code": "MECH_FAILURE",
+            "reason_name": "Mechanical failure",
+            "category": "Equipment",
+            "is_planned": false,
+            "downtime_minutes": 8326,
+            "downtime_hours": 138.8,
+            "event_count": 110,
+            "share_pct": 34.3
+          },
+          {
+            "reason_code": "CHANGEOVER",
+            "reason_name": "Product changeover",
+            "category": "Planned",
+            "is_planned": true,
+            "downtime_minutes": 6449,
+            "downtime_hours": 107.5,
+            "event_count": 163,
+            "share_pct": 26.6
+          },
+          {
+            "reason_code": "PLANNED_MAINT",
+            "reason_name": "Planned maintenance",
+            "category": "Planned",
+            "is_planned": true,
+            "downtime_minutes": 3118,
+            "downtime_hours": 52.0,
+            "event_count": 22,
+            "share_pct": 12.9
+          },
+          {
+            "reason_code": "ELEC_FAULT",
+            "reason_name": "Electrical fault",
+            "category": "Equipment",
+            "is_planned": false,
+            "downtime_minutes": 2047,
+            "downtime_hours": 34.1,
+            "event_count": 39,
+            "share_pct": 8.4
+          },
+          {
+            "reason_code": "MATERIAL_SHORTAGE",
+            "reason_name": "Material shortage",
+            "category": "Logistics",
+            "is_planned": false,
+            "downtime_minutes": 1946,
+            "downtime_hours": 32.4,
+            "event_count": 55,
+            "share_pct": 8.0
+          },
+          {
+            "reason_code": "QUALITY_HOLD",
+            "reason_name": "Quality hold",
+            "category": "Quality",
+            "is_planned": false,
+            "downtime_minutes": 1607,
+            "downtime_hours": 26.8,
+            "event_count": 33,
+            "share_pct": 6.6
+          },
+          {
+            "reason_code": "OPERATOR_UNAVAIL",
+            "reason_name": "Operator unavailable",
+            "category": "Staffing",
+            "is_planned": false,
+            "downtime_minutes": 759,
+            "downtime_hours": 12.7,
+            "event_count": 41,
+            "share_pct": 3.1
+          }
+        ],
+        "omitted_count": 0
+      }
+    },
+    {
+      "id": "daily_trend.last_30_days",
+      "tool": "get_daily_production_trend",
+      "arguments": {
+        "start_date": "2026-10-12",
+        "end_date": "2026-11-10"
+      },
+      "expected": {
+        "items": [
+          {
+            "date": "2026-10-12",
+            "planned_quantity": 16920,
+            "produced_quantity": 14283,
+            "defective_quantity": 313,
+            "good_quantity": 13970,
+            "attainment_pct": 84.4,
+            "defect_rate_pct": 2.2,
+            "downtime_minutes": 595
+          },
+          {
+            "date": "2026-10-13",
+            "planned_quantity": 16920,
+            "produced_quantity": 14742,
+            "defective_quantity": 344,
+            "good_quantity": 14398,
+            "attainment_pct": 87.1,
+            "defect_rate_pct": 2.3,
+            "downtime_minutes": 344
+          },
+          {
+            "date": "2026-10-14",
+            "planned_quantity": 16920,
+            "produced_quantity": 13962,
+            "defective_quantity": 305,
+            "good_quantity": 13657,
+            "attainment_pct": 82.5,
+            "defect_rate_pct": 2.2,
+            "downtime_minutes": 686
+          },
+          {
+            "date": "2026-10-15",
+            "planned_quantity": 16920,
+            "produced_quantity": 14898,
+            "defective_quantity": 309,
+            "good_quantity": 14589,
+            "attainment_pct": 88.0,
+            "defect_rate_pct": 2.1,
+            "downtime_minutes": 293
+          },
+          {
+            "date": "2026-10-16",
+            "planned_quantity": 16920,
+            "produced_quantity": 14442,
+            "defective_quantity": 284,
+            "good_quantity": 14158,
+            "attainment_pct": 85.4,
+            "defect_rate_pct": 2.0,
+            "downtime_minutes": 429
+          },
+          {
+            "date": "2026-10-17",
+            "planned_quantity": 16920,
+            "produced_quantity": 14576,
+            "defective_quantity": 291,
+            "good_quantity": 14285,
+            "attainment_pct": 86.1,
+            "defect_rate_pct": 2.0,
+            "downtime_minutes": 405
+          },
+          {
+            "date": "2026-10-18",
+            "planned_quantity": 16920,
+            "produced_quantity": 12895,
+            "defective_quantity": 287,
+            "good_quantity": 12608,
+            "attainment_pct": 76.2,
+            "defect_rate_pct": 2.2,
+            "downtime_minutes": 1353
+          },
+          {
+            "date": "2026-10-19",
+            "planned_quantity": 16920,
+            "produced_quantity": 13902,
+            "defective_quantity": 316,
+            "good_quantity": 13586,
+            "attainment_pct": 82.2,
+            "defect_rate_pct": 2.3,
+            "downtime_minutes": 766
+          },
+          {
+            "date": "2026-10-20",
+            "planned_quantity": 16920,
+            "produced_quantity": 14405,
+            "defective_quantity": 311,
+            "good_quantity": 14094,
+            "attainment_pct": 85.1,
+            "defect_rate_pct": 2.2,
+            "downtime_minutes": 574
+          },
+          {
+            "date": "2026-10-21",
+            "planned_quantity": 16920,
+            "produced_quantity": 14441,
+            "defective_quantity": 305,
+            "good_quantity": 14136,
+            "attainment_pct": 85.3,
+            "defect_rate_pct": 2.1,
+            "downtime_minutes": 536
+          },
+          {
+            "date": "2026-10-22",
+            "planned_quantity": 16920,
+            "produced_quantity": 14504,
+            "defective_quantity": 301,
+            "good_quantity": 14203,
+            "attainment_pct": 85.7,
+            "defect_rate_pct": 2.1,
+            "downtime_minutes": 547
+          },
+          {
+            "date": "2026-10-23",
+            "planned_quantity": 16920,
+            "produced_quantity": 14194,
+            "defective_quantity": 321,
+            "good_quantity": 13873,
+            "attainment_pct": 83.9,
+            "defect_rate_pct": 2.3,
+            "downtime_minutes": 809
+          },
+          {
+            "date": "2026-10-24",
+            "planned_quantity": 16920,
+            "produced_quantity": 14622,
+            "defective_quantity": 316,
+            "good_quantity": 14306,
+            "attainment_pct": 86.4,
+            "defect_rate_pct": 2.2,
+            "downtime_minutes": 569
+          },
+          {
+            "date": "2026-10-25",
+            "planned_quantity": 16920,
+            "produced_quantity": 12254,
+            "defective_quantity": 270,
+            "good_quantity": 11984,
+            "attainment_pct": 72.4,
+            "defect_rate_pct": 2.2,
+            "downtime_minutes": 1678
+          },
+          {
+            "date": "2026-10-26",
+            "planned_quantity": 16920,
+            "produced_quantity": 14431,
+            "defective_quantity": 302,
+            "good_quantity": 14129,
+            "attainment_pct": 85.3,
+            "defect_rate_pct": 2.1,
+            "downtime_minutes": 636
+          },
+          {
+            "date": "2026-10-27",
+            "planned_quantity": 16920,
+            "produced_quantity": 13910,
+            "defective_quantity": 311,
+            "good_quantity": 13599,
+            "attainment_pct": 82.2,
+            "defect_rate_pct": 2.2,
+            "downtime_minutes": 1026
+          },
+          {
+            "date": "2026-10-28",
+            "planned_quantity": 16920,
+            "produced_quantity": 14047,
+            "defective_quantity": 287,
+            "good_quantity": 13760,
+            "attainment_pct": 83.0,
+            "defect_rate_pct": 2.0,
+            "downtime_minutes": 655
+          },
+          {
+            "date": "2026-10-29",
+            "planned_quantity": 16920,
+            "produced_quantity": 14352,
+            "defective_quantity": 305,
+            "good_quantity": 14047,
+            "attainment_pct": 84.8,
+            "defect_rate_pct": 2.1,
+            "downtime_minutes": 813
+          },
+          {
+            "date": "2026-10-30",
+            "planned_quantity": 16920,
+            "produced_quantity": 14169,
+            "defective_quantity": 297,
+            "good_quantity": 13872,
+            "attainment_pct": 83.7,
+            "defect_rate_pct": 2.1,
+            "downtime_minutes": 686
+          },
+          {
+            "date": "2026-10-31",
+            "planned_quantity": 16920,
+            "produced_quantity": 13841,
+            "defective_quantity": 282,
+            "good_quantity": 13559,
+            "attainment_pct": 81.8,
+            "defect_rate_pct": 2.0,
+            "downtime_minutes": 849
+          },
+          {
+            "date": "2026-11-01",
+            "planned_quantity": 16920,
+            "produced_quantity": 13140,
+            "defective_quantity": 286,
+            "good_quantity": 12854,
+            "attainment_pct": 77.7,
+            "defect_rate_pct": 2.2,
+            "downtime_minutes": 1270
+          },
+          {
+            "date": "2026-11-02",
+            "planned_quantity": 16920,
+            "produced_quantity": 14239,
+            "defective_quantity": 308,
+            "good_quantity": 13931,
+            "attainment_pct": 84.2,
+            "defect_rate_pct": 2.2,
+            "downtime_minutes": 739
+          },
+          {
+            "date": "2026-11-03",
+            "planned_quantity": 16920,
+            "produced_quantity": 14250,
+            "defective_quantity": 318,
+            "good_quantity": 13932,
+            "attainment_pct": 84.2,
+            "defect_rate_pct": 2.2,
+            "downtime_minutes": 792
+          },
+          {
+            "date": "2026-11-04",
+            "planned_quantity": 16920,
+            "produced_quantity": 13993,
+            "defective_quantity": 282,
+            "good_quantity": 13711,
+            "attainment_pct": 82.7,
+            "defect_rate_pct": 2.0,
+            "downtime_minutes": 869
+          },
+          {
+            "date": "2026-11-05",
+            "planned_quantity": 16920,
+            "produced_quantity": 14325,
+            "defective_quantity": 304,
+            "good_quantity": 14021,
+            "attainment_pct": 84.7,
+            "defect_rate_pct": 2.1,
+            "downtime_minutes": 805
+          },
+          {
+            "date": "2026-11-06",
+            "planned_quantity": 16920,
+            "produced_quantity": 14103,
+            "defective_quantity": 312,
+            "good_quantity": 13791,
+            "attainment_pct": 83.4,
+            "defect_rate_pct": 2.2,
+            "downtime_minutes": 853
+          },
+          {
+            "date": "2026-11-07",
+            "planned_quantity": 16920,
+            "produced_quantity": 14248,
+            "defective_quantity": 304,
+            "good_quantity": 13944,
+            "attainment_pct": 84.2,
+            "defect_rate_pct": 2.1,
+            "downtime_minutes": 839
+          },
+          {
+            "date": "2026-11-08",
+            "planned_quantity": 16920,
+            "produced_quantity": 12298,
+            "defective_quantity": 261,
+            "good_quantity": 12037,
+            "attainment_pct": 72.7,
+            "defect_rate_pct": 2.1,
+            "downtime_minutes": 1680
+          },
+          {
+            "date": "2026-11-09",
+            "planned_quantity": 16920,
+            "produced_quantity": 14065,
+            "defective_quantity": 301,
+            "good_quantity": 13764,
+            "attainment_pct": 83.1,
+            "defect_rate_pct": 2.1,
+            "downtime_minutes": 938
+          },
+          {
+            "date": "2026-11-10",
+            "planned_quantity": 16920,
+            "produced_quantity": 13497,
+            "defective_quantity": 310,
+            "good_quantity": 13187,
+            "attainment_pct": 79.8,
+            "defect_rate_pct": 2.3,
+            "downtime_minutes": 1218
+          }
+        ]
+      }
+    },
+    {
+      "id": "production_summary.full_dataset",
+      "tool": "get_production_summary",
+      "arguments": {
+        "start_date": "2026-08-13",
+        "end_date": "2026-11-10"
+      },
+      "expected": {
+        "totals": {
+          "planned_quantity": 1522800,
+          "produced_quantity": 1263973,
+          "defective_quantity": 21677,
+          "good_quantity": 1242296,
+          "attainment_pct": 83.0,
+          "defect_rate_pct": 1.7,
+          "downtime_minutes": 66925,
+          "downtime_hours": 1115.4,
+          "record_count": 12960
+        },
+        "by_line": [
+          {
+            "line_code": "L01",
+            "line_name": "Line 01",
+            "planned_quantity": 259200,
+            "produced_quantity": 216350,
+            "defective_quantity": 2710,
+            "good_quantity": 213640,
+            "attainment_pct": 83.5,
+            "defect_rate_pct": 1.3,
+            "downtime_minutes": 10136,
+            "downtime_hours": 168.9,
+            "record_count": 2160
+          },
+          {
+            "line_code": "L02",
+            "line_name": "Line 02",
+            "planned_quantity": 237600,
+            "produced_quantity": 197044,
+            "defective_quantity": 2812,
+            "good_quantity": 194232,
+            "attainment_pct": 82.9,
+            "defect_rate_pct": 1.4,
+            "downtime_minutes": 10736,
+            "downtime_hours": 178.9,
+            "record_count": 2160
+          },
+          {
+            "line_code": "L03",
+            "line_name": "Line 03",
+            "planned_quantity": 388800,
+            "produced_quantity": 322360,
+            "defective_quantity": 7785,
+            "good_quantity": 314575,
+            "attainment_pct": 82.9,
+            "defect_rate_pct": 2.4,
+            "downtime_minutes": 11295,
+            "downtime_hours": 188.3,
+            "record_count": 2160
+          },
+          {
+            "line_code": "L04",
+            "line_name": "Line 04",
+            "planned_quantity": 129600,
+            "produced_quantity": 103035,
+            "defective_quantity": 2147,
+            "good_quantity": 100888,
+            "attainment_pct": 79.5,
+            "defect_rate_pct": 2.1,
+            "downtime_minutes": 15222,
+            "downtime_hours": 253.7,
+            "record_count": 2160
+          },
+          {
+            "line_code": "L05",
+            "line_name": "Line 05",
+            "planned_quantity": 140400,
+            "produced_quantity": 116971,
+            "defective_quantity": 2161,
+            "good_quantity": 114810,
+            "attainment_pct": 83.3,
+            "defect_rate_pct": 1.8,
+            "downtime_minutes": 9944,
+            "downtime_hours": 165.7,
+            "record_count": 2160
+          },
+          {
+            "line_code": "L06",
+            "line_name": "Line 06",
+            "planned_quantity": 367200,
+            "produced_quantity": 308213,
+            "defective_quantity": 4062,
+            "good_quantity": 304151,
+            "attainment_pct": 83.9,
+            "defect_rate_pct": 1.3,
+            "downtime_minutes": 9592,
+            "downtime_hours": 159.9,
+            "record_count": 2160
+          }
+        ]
+      }
+    },
+    {
+      "id": "downtime_by_line.full_dataset",
+      "tool": "get_downtime_by_line",
+      "arguments": {
+        "start_date": "2026-08-13",
+        "end_date": "2026-11-10"
+      },
+      "expected": {
+        "total_downtime_minutes": 66925,
+        "items": [
+          {
+            "line_code": "L04",
+            "line_name": "Line 04",
+            "downtime_minutes": 15222,
+            "downtime_hours": 253.7,
+            "event_count": 269,
+            "share_pct": 22.7
+          },
+          {
+            "line_code": "L03",
+            "line_name": "Line 03",
+            "downtime_minutes": 11295,
+            "downtime_hours": 188.3,
+            "event_count": 206,
+            "share_pct": 16.9
+          },
+          {
+            "line_code": "L02",
+            "line_name": "Line 02",
+            "downtime_minutes": 10736,
+            "downtime_hours": 178.9,
+            "event_count": 228,
+            "share_pct": 16.0
+          },
+          {
+            "line_code": "L01",
+            "line_name": "Line 01",
+            "downtime_minutes": 10136,
+            "downtime_hours": 168.9,
+            "event_count": 209,
+            "share_pct": 15.1
+          },
+          {
+            "line_code": "L05",
+            "line_name": "Line 05",
+            "downtime_minutes": 9944,
+            "downtime_hours": 165.7,
+            "event_count": 220,
+            "share_pct": 14.9
+          },
+          {
+            "line_code": "L06",
+            "line_name": "Line 06",
+            "downtime_minutes": 9592,
+            "downtime_hours": 159.9,
+            "event_count": 207,
+            "share_pct": 14.3
+          }
+        ],
+        "omitted_count": 0
+      }
+    },
+    {
+      "id": "downtime_by_line.full_dataset.unplanned",
+      "tool": "get_downtime_by_line",
+      "arguments": {
+        "start_date": "2026-08-13",
+        "end_date": "2026-11-10",
+        "include_planned": false
+      },
+      "expected": {
+        "total_downtime_minutes": 36456,
+        "items": [
+          {
+            "line_code": "L04",
+            "line_name": "Line 04",
+            "downtime_minutes": 10444,
+            "downtime_hours": 174.1,
+            "event_count": 180,
+            "share_pct": 28.6
+          },
+          {
+            "line_code": "L03",
+            "line_name": "Line 03",
+            "downtime_minutes": 6013,
+            "downtime_hours": 100.2,
+            "event_count": 106,
+            "share_pct": 16.5
+          },
+          {
+            "line_code": "L02",
+            "line_name": "Line 02",
+            "downtime_minutes": 5451,
+            "downtime_hours": 90.9,
+            "event_count": 126,
+            "share_pct": 15.0
+          },
+          {
+            "line_code": "L01",
+            "line_name": "Line 01",
+            "downtime_minutes": 5257,
+            "downtime_hours": 87.6,
+            "event_count": 111,
+            "share_pct": 14.4
+          },
+          {
+            "line_code": "L05",
+            "line_name": "Line 05",
+            "downtime_minutes": 4832,
+            "downtime_hours": 80.5,
+            "event_count": 122,
+            "share_pct": 13.3
+          },
+          {
+            "line_code": "L06",
+            "line_name": "Line 06",
+            "downtime_minutes": 4459,
+            "downtime_hours": 74.3,
+            "event_count": 108,
+            "share_pct": 12.2
+          }
+        ],
+        "omitted_count": 0
+      }
+    },
+    {
+      "id": "downtime_reasons.full_dataset",
+      "tool": "get_downtime_reasons",
+      "arguments": {
+        "start_date": "2026-08-13",
+        "end_date": "2026-11-10"
+      },
+      "expected": {
+        "total_downtime_minutes": 66925,
+        "items": [
+          {
+            "reason_code": "CHANGEOVER",
+            "reason_name": "Product changeover",
+            "category": "Planned",
+            "is_planned": true,
+            "downtime_minutes": 20375,
+            "downtime_hours": 339.6,
+            "event_count": 511,
+            "share_pct": 30.4
+          },
+          {
+            "reason_code": "MECH_FAILURE",
+            "reason_name": "Mechanical failure",
+            "category": "Equipment",
+            "is_planned": false,
+            "downtime_minutes": 19244,
+            "downtime_hours": 320.7,
+            "event_count": 273,
+            "share_pct": 28.8
+          },
+          {
+            "reason_code": "PLANNED_MAINT",
+            "reason_name": "Planned maintenance",
+            "category": "Planned",
+            "is_planned": true,
+            "downtime_minutes": 10094,
+            "downtime_hours": 168.2,
+            "event_count": 75,
+            "share_pct": 15.1
+          },
+          {
+            "reason_code": "MATERIAL_SHORTAGE",
+            "reason_name": "Material shortage",
+            "category": "Logistics",
+            "is_planned": false,
+            "downtime_minutes": 5550,
+            "downtime_hours": 92.5,
+            "event_count": 156,
+            "share_pct": 8.3
+          },
+          {
+            "reason_code": "ELEC_FAULT",
+            "reason_name": "Electrical fault",
+            "category": "Equipment",
+            "is_planned": false,
+            "downtime_minutes": 5421,
+            "downtime_hours": 90.4,
+            "event_count": 123,
+            "share_pct": 8.1
+          },
+          {
+            "reason_code": "QUALITY_HOLD",
+            "reason_name": "Quality hold",
+            "category": "Quality",
+            "is_planned": false,
+            "downtime_minutes": 4267,
+            "downtime_hours": 71.1,
+            "event_count": 97,
+            "share_pct": 6.4
+          },
+          {
+            "reason_code": "OPERATOR_UNAVAIL",
+            "reason_name": "Operator unavailable",
+            "category": "Staffing",
+            "is_planned": false,
+            "downtime_minutes": 1974,
+            "downtime_hours": 32.9,
+            "event_count": 104,
+            "share_pct": 2.9
+          }
+        ],
+        "omitted_count": 0
+      }
+    },
+    {
+      "id": "daily_trend.full_dataset",
+      "tool": "get_daily_production_trend",
+      "arguments": {
+        "start_date": "2026-08-13",
+        "end_date": "2026-11-10"
+      },
+      "expected": {
+        "items": [
+          {
+            "date": "2026-08-13",
+            "planned_quantity": 16920,
+            "produced_quantity": 14650,
+            "defective_quantity": 238,
+            "good_quantity": 14412,
+            "attainment_pct": 86.6,
+            "defect_rate_pct": 1.6,
+            "downtime_minutes": 359
+          },
+          {
+            "date": "2026-08-14",
+            "planned_quantity": 16920,
+            "produced_quantity": 13471,
+            "defective_quantity": 199,
+            "good_quantity": 13272,
+            "attainment_pct": 79.6,
+            "defect_rate_pct": 1.5,
+            "downtime_minutes": 783
+          },
+          {
+            "date": "2026-08-15",
+            "planned_quantity": 16920,
+            "produced_quantity": 13609,
+            "defective_quantity": 197,
+            "good_quantity": 13412,
+            "attainment_pct": 80.4,
+            "defect_rate_pct": 1.4,
+            "downtime_minutes": 959
+          },
+          {
+            "date": "2026-08-16",
+            "planned_quantity": 16920,
+            "produced_quantity": 12619,
+            "defective_quantity": 194,
+            "good_quantity": 12425,
+            "attainment_pct": 74.6,
+            "defect_rate_pct": 1.5,
+            "downtime_minutes": 1486
+          },
+          {
+            "date": "2026-08-17",
+            "planned_quantity": 16920,
+            "produced_quantity": 14509,
+            "defective_quantity": 218,
+            "good_quantity": 14291,
+            "attainment_pct": 85.8,
+            "defect_rate_pct": 1.5,
+            "downtime_minutes": 412
+          },
+          {
+            "date": "2026-08-18",
+            "planned_quantity": 16920,
+            "produced_quantity": 13972,
+            "defective_quantity": 203,
+            "good_quantity": 13769,
+            "attainment_pct": 82.6,
+            "defect_rate_pct": 1.5,
+            "downtime_minutes": 709
+          },
+          {
+            "date": "2026-08-19",
+            "planned_quantity": 16920,
+            "produced_quantity": 13993,
+            "defective_quantity": 217,
+            "good_quantity": 13776,
+            "attainment_pct": 82.7,
+            "defect_rate_pct": 1.6,
+            "downtime_minutes": 668
+          },
+          {
+            "date": "2026-08-20",
+            "planned_quantity": 16920,
+            "produced_quantity": 14379,
+            "defective_quantity": 216,
+            "good_quantity": 14163,
+            "attainment_pct": 85.0,
+            "defect_rate_pct": 1.5,
+            "downtime_minutes": 565
+          },
+          {
+            "date": "2026-08-21",
+            "planned_quantity": 16920,
+            "produced_quantity": 14744,
+            "defective_quantity": 218,
+            "good_quantity": 14526,
+            "attainment_pct": 87.1,
+            "defect_rate_pct": 1.5,
+            "downtime_minutes": 401
+          },
+          {
+            "date": "2026-08-22",
+            "planned_quantity": 16920,
+            "produced_quantity": 14403,
+            "defective_quantity": 225,
+            "good_quantity": 14178,
+            "attainment_pct": 85.1,
+            "defect_rate_pct": 1.6,
+            "downtime_minutes": 522
+          },
+          {
+            "date": "2026-08-23",
+            "planned_quantity": 16920,
+            "produced_quantity": 13258,
+            "defective_quantity": 205,
+            "good_quantity": 13053,
+            "attainment_pct": 78.4,
+            "defect_rate_pct": 1.5,
+            "downtime_minutes": 1185
+          },
+          {
+            "date": "2026-08-24",
+            "planned_quantity": 16920,
+            "produced_quantity": 14356,
+            "defective_quantity": 211,
+            "good_quantity": 14145,
+            "attainment_pct": 84.8,
+            "defect_rate_pct": 1.5,
+            "downtime_minutes": 639
+          },
+          {
+            "date": "2026-08-25",
+            "planned_quantity": 16920,
+            "produced_quantity": 14765,
+            "defective_quantity": 219,
+            "good_quantity": 14546,
+            "attainment_pct": 87.3,
+            "defect_rate_pct": 1.5,
+            "downtime_minutes": 304
+          },
+          {
+            "date": "2026-08-26",
+            "planned_quantity": 16920,
+            "produced_quantity": 13783,
+            "defective_quantity": 217,
+            "good_quantity": 13566,
+            "attainment_pct": 81.5,
+            "defect_rate_pct": 1.6,
+            "downtime_minutes": 854
+          },
+          {
+            "date": "2026-08-27",
+            "planned_quantity": 16920,
+            "produced_quantity": 13934,
+            "defective_quantity": 210,
+            "good_quantity": 13724,
+            "attainment_pct": 82.4,
+            "defect_rate_pct": 1.5,
+            "downtime_minutes": 828
+          },
+          {
+            "date": "2026-08-28",
+            "planned_quantity": 16920,
+            "produced_quantity": 14490,
+            "defective_quantity": 221,
+            "good_quantity": 14269,
+            "attainment_pct": 85.6,
+            "defect_rate_pct": 1.5,
+            "downtime_minutes": 465
+          },
+          {
+            "date": "2026-08-29",
+            "planned_quantity": 16920,
+            "produced_quantity": 14581,
+            "defective_quantity": 222,
+            "good_quantity": 14359,
+            "attainment_pct": 86.2,
+            "defect_rate_pct": 1.5,
+            "downtime_minutes": 461
+          },
+          {
+            "date": "2026-08-30",
+            "planned_quantity": 16920,
+            "produced_quantity": 12517,
+            "defective_quantity": 191,
+            "good_quantity": 12326,
+            "attainment_pct": 74.0,
+            "defect_rate_pct": 1.5,
+            "downtime_minutes": 1545
+          },
+          {
+            "date": "2026-08-31",
+            "planned_quantity": 16920,
+            "produced_quantity": 14685,
+            "defective_quantity": 216,
+            "good_quantity": 14469,
+            "attainment_pct": 86.8,
+            "defect_rate_pct": 1.5,
+            "downtime_minutes": 415
+          },
+          {
+            "date": "2026-09-01",
+            "planned_quantity": 16920,
+            "produced_quantity": 14287,
+            "defective_quantity": 218,
+            "good_quantity": 14069,
+            "attainment_pct": 84.4,
+            "defect_rate_pct": 1.5,
+            "downtime_minutes": 605
+          },
+          {
+            "date": "2026-09-02",
+            "planned_quantity": 16920,
+            "produced_quantity": 13395,
+            "defective_quantity": 188,
+            "good_quantity": 13207,
+            "attainment_pct": 79.2,
+            "defect_rate_pct": 1.4,
+            "downtime_minutes": 941
+          },
+          {
+            "date": "2026-09-03",
+            "planned_quantity": 16920,
+            "produced_quantity": 14331,
+            "defective_quantity": 208,
+            "good_quantity": 14123,
+            "attainment_pct": 84.7,
+            "defect_rate_pct": 1.5,
+            "downtime_minutes": 646
+          },
+          {
+            "date": "2026-09-04",
+            "planned_quantity": 16920,
+            "produced_quantity": 14067,
+            "defective_quantity": 208,
+            "good_quantity": 13859,
+            "attainment_pct": 83.1,
+            "defect_rate_pct": 1.5,
+            "downtime_minutes": 705
+          },
+          {
+            "date": "2026-09-05",
+            "planned_quantity": 16920,
+            "produced_quantity": 14374,
+            "defective_quantity": 205,
+            "good_quantity": 14169,
+            "attainment_pct": 85.0,
+            "defect_rate_pct": 1.4,
+            "downtime_minutes": 553
+          },
+          {
+            "date": "2026-09-06",
+            "planned_quantity": 16920,
+            "produced_quantity": 13234,
+            "defective_quantity": 204,
+            "good_quantity": 13030,
+            "attainment_pct": 78.2,
+            "defect_rate_pct": 1.5,
+            "downtime_minutes": 1202
+          },
+          {
+            "date": "2026-09-07",
+            "planned_quantity": 16920,
+            "produced_quantity": 14309,
+            "defective_quantity": 213,
+            "good_quantity": 14096,
+            "attainment_pct": 84.6,
+            "defect_rate_pct": 1.5,
+            "downtime_minutes": 580
+          },
+          {
+            "date": "2026-09-08",
+            "planned_quantity": 16920,
+            "produced_quantity": 14409,
+            "defective_quantity": 213,
+            "good_quantity": 14196,
+            "attainment_pct": 85.2,
+            "defect_rate_pct": 1.5,
+            "downtime_minutes": 549
+          },
+          {
+            "date": "2026-09-09",
+            "planned_quantity": 16920,
+            "produced_quantity": 14508,
+            "defective_quantity": 223,
+            "good_quantity": 14285,
+            "attainment_pct": 85.7,
+            "defect_rate_pct": 1.5,
+            "downtime_minutes": 413
+          },
+          {
+            "date": "2026-09-10",
+            "planned_quantity": 16920,
+            "produced_quantity": 14433,
+            "defective_quantity": 213,
+            "good_quantity": 14220,
+            "attainment_pct": 85.3,
+            "defect_rate_pct": 1.5,
+            "downtime_minutes": 604
+          },
+          {
+            "date": "2026-09-11",
+            "planned_quantity": 16920,
+            "produced_quantity": 13828,
+            "defective_quantity": 208,
+            "good_quantity": 13620,
+            "attainment_pct": 81.7,
+            "defect_rate_pct": 1.5,
+            "downtime_minutes": 784
+          },
+          {
+            "date": "2026-09-12",
+            "planned_quantity": 16920,
+            "produced_quantity": 14280,
+            "defective_quantity": 196,
+            "good_quantity": 14084,
+            "attainment_pct": 84.4,
+            "defect_rate_pct": 1.4,
+            "downtime_minutes": 577
+          },
+          {
+            "date": "2026-09-13",
+            "planned_quantity": 16920,
+            "produced_quantity": 12628,
+            "defective_quantity": 191,
+            "good_quantity": 12437,
+            "attainment_pct": 74.6,
+            "defect_rate_pct": 1.5,
+            "downtime_minutes": 1407
+          },
+          {
+            "date": "2026-09-14",
+            "planned_quantity": 16920,
+            "produced_quantity": 14115,
+            "defective_quantity": 211,
+            "good_quantity": 13904,
+            "attainment_pct": 83.4,
+            "defect_rate_pct": 1.5,
+            "downtime_minutes": 617
+          },
+          {
+            "date": "2026-09-15",
+            "planned_quantity": 16920,
+            "produced_quantity": 14377,
+            "defective_quantity": 219,
+            "good_quantity": 14158,
+            "attainment_pct": 85.0,
+            "defect_rate_pct": 1.5,
+            "downtime_minutes": 511
+          },
+          {
+            "date": "2026-09-16",
+            "planned_quantity": 16920,
+            "produced_quantity": 14285,
+            "defective_quantity": 218,
+            "good_quantity": 14067,
+            "attainment_pct": 84.4,
+            "defect_rate_pct": 1.5,
+            "downtime_minutes": 534
+          },
+          {
+            "date": "2026-09-17",
+            "planned_quantity": 16920,
+            "produced_quantity": 14641,
+            "defective_quantity": 227,
+            "good_quantity": 14414,
+            "attainment_pct": 86.5,
+            "defect_rate_pct": 1.6,
+            "downtime_minutes": 433
+          },
+          {
+            "date": "2026-09-18",
+            "planned_quantity": 16920,
+            "produced_quantity": 14536,
+            "defective_quantity": 218,
+            "good_quantity": 14318,
+            "attainment_pct": 85.9,
+            "defect_rate_pct": 1.5,
+            "downtime_minutes": 507
+          },
+          {
+            "date": "2026-09-19",
+            "planned_quantity": 16920,
+            "produced_quantity": 13690,
+            "defective_quantity": 199,
+            "good_quantity": 13491,
+            "attainment_pct": 80.9,
+            "defect_rate_pct": 1.5,
+            "downtime_minutes": 942
+          },
+          {
+            "date": "2026-09-20",
+            "planned_quantity": 16920,
+            "produced_quantity": 13086,
+            "defective_quantity": 195,
+            "good_quantity": 12891,
+            "attainment_pct": 77.3,
+            "defect_rate_pct": 1.5,
+            "downtime_minutes": 1284
+          },
+          {
+            "date": "2026-09-21",
+            "planned_quantity": 16920,
+            "produced_quantity": 14114,
+            "defective_quantity": 208,
+            "good_quantity": 13906,
+            "attainment_pct": 83.4,
+            "defect_rate_pct": 1.5,
+            "downtime_minutes": 721
+          },
+          {
+            "date": "2026-09-22",
+            "planned_quantity": 16920,
+            "produced_quantity": 14548,
+            "defective_quantity": 205,
+            "good_quantity": 14343,
+            "attainment_pct": 86.0,
+            "defect_rate_pct": 1.4,
+            "downtime_minutes": 516
+          },
+          {
+            "date": "2026-09-23",
+            "planned_quantity": 16920,
+            "produced_quantity": 13807,
+            "defective_quantity": 208,
+            "good_quantity": 13599,
+            "attainment_pct": 81.6,
+            "defect_rate_pct": 1.5,
+            "downtime_minutes": 801
+          },
+          {
+            "date": "2026-09-24",
+            "planned_quantity": 16920,
+            "produced_quantity": 13900,
+            "defective_quantity": 205,
+            "good_quantity": 13695,
+            "attainment_pct": 82.2,
+            "defect_rate_pct": 1.5,
+            "downtime_minutes": 815
+          },
+          {
+            "date": "2026-09-25",
+            "planned_quantity": 16920,
+            "produced_quantity": 14365,
+            "defective_quantity": 215,
+            "good_quantity": 14150,
+            "attainment_pct": 84.9,
+            "defect_rate_pct": 1.5,
+            "downtime_minutes": 537
+          },
+          {
+            "date": "2026-09-26",
+            "planned_quantity": 16920,
+            "produced_quantity": 14431,
+            "defective_quantity": 223,
+            "good_quantity": 14208,
+            "attainment_pct": 85.3,
+            "defect_rate_pct": 1.5,
+            "downtime_minutes": 432
+          },
+          {
+            "date": "2026-09-27",
+            "planned_quantity": 16920,
+            "produced_quantity": 13469,
+            "defective_quantity": 209,
+            "good_quantity": 13260,
+            "attainment_pct": 79.6,
+            "defect_rate_pct": 1.6,
+            "downtime_minutes": 1045
+          },
+          {
+            "date": "2026-09-28",
+            "planned_quantity": 16920,
+            "produced_quantity": 13988,
+            "defective_quantity": 219,
+            "good_quantity": 13769,
+            "attainment_pct": 82.7,
+            "defect_rate_pct": 1.6,
+            "downtime_minutes": 770
+          },
+          {
+            "date": "2026-09-29",
+            "planned_quantity": 16920,
+            "produced_quantity": 14436,
+            "defective_quantity": 211,
+            "good_quantity": 14225,
+            "attainment_pct": 85.3,
+            "defect_rate_pct": 1.5,
+            "downtime_minutes": 438
+          },
+          {
+            "date": "2026-09-30",
+            "planned_quantity": 16920,
+            "produced_quantity": 14576,
+            "defective_quantity": 222,
+            "good_quantity": 14354,
+            "attainment_pct": 86.1,
+            "defect_rate_pct": 1.5,
+            "downtime_minutes": 435
+          },
+          {
+            "date": "2026-10-01",
+            "planned_quantity": 16920,
+            "produced_quantity": 14750,
+            "defective_quantity": 214,
+            "good_quantity": 14536,
+            "attainment_pct": 87.2,
+            "defect_rate_pct": 1.5,
+            "downtime_minutes": 395
+          },
+          {
+            "date": "2026-10-02",
+            "planned_quantity": 16920,
+            "produced_quantity": 14075,
+            "defective_quantity": 208,
+            "good_quantity": 13867,
+            "attainment_pct": 83.2,
+            "defect_rate_pct": 1.5,
+            "downtime_minutes": 741
+          },
+          {
+            "date": "2026-10-03",
+            "planned_quantity": 16920,
+            "produced_quantity": 13534,
+            "defective_quantity": 206,
+            "good_quantity": 13328,
+            "attainment_pct": 80.0,
+            "defect_rate_pct": 1.5,
+            "downtime_minutes": 995
+          },
+          {
+            "date": "2026-10-04",
+            "planned_quantity": 16920,
+            "produced_quantity": 12856,
+            "defective_quantity": 192,
+            "good_quantity": 12664,
+            "attainment_pct": 76.0,
+            "defect_rate_pct": 1.5,
+            "downtime_minutes": 1344
+          },
+          {
+            "date": "2026-10-05",
+            "planned_quantity": 16920,
+            "produced_quantity": 14381,
+            "defective_quantity": 209,
+            "good_quantity": 14172,
+            "attainment_pct": 85.0,
+            "defect_rate_pct": 1.5,
+            "downtime_minutes": 507
+          },
+          {
+            "date": "2026-10-06",
+            "planned_quantity": 16920,
+            "produced_quantity": 14569,
+            "defective_quantity": 213,
+            "good_quantity": 14356,
+            "attainment_pct": 86.1,
+            "defect_rate_pct": 1.5,
+            "downtime_minutes": 400
+          },
+          {
+            "date": "2026-10-07",
+            "planned_quantity": 16920,
+            "produced_quantity": 14411,
+            "defective_quantity": 219,
+            "good_quantity": 14192,
+            "attainment_pct": 85.2,
+            "defect_rate_pct": 1.5,
+            "downtime_minutes": 501
+          },
+          {
+            "date": "2026-10-08",
+            "planned_quantity": 16920,
+            "produced_quantity": 14371,
+            "defective_quantity": 220,
+            "good_quantity": 14151,
+            "attainment_pct": 84.9,
+            "defect_rate_pct": 1.5,
+            "downtime_minutes": 492
+          },
+          {
+            "date": "2026-10-09",
+            "planned_quantity": 16920,
+            "produced_quantity": 13689,
+            "defective_quantity": 204,
+            "good_quantity": 13485,
+            "attainment_pct": 80.9,
+            "defect_rate_pct": 1.5,
+            "downtime_minutes": 751
+          },
+          {
+            "date": "2026-10-10",
+            "planned_quantity": 16920,
+            "produced_quantity": 14210,
+            "defective_quantity": 223,
+            "good_quantity": 13987,
+            "attainment_pct": 84.0,
+            "defect_rate_pct": 1.6,
+            "downtime_minutes": 659
+          },
+          {
+            "date": "2026-10-11",
+            "planned_quantity": 16920,
+            "produced_quantity": 12934,
+            "defective_quantity": 189,
+            "good_quantity": 12745,
+            "attainment_pct": 76.4,
+            "defect_rate_pct": 1.5,
+            "downtime_minutes": 1424
+          },
+          {
+            "date": "2026-10-12",
+            "planned_quantity": 16920,
+            "produced_quantity": 14283,
+            "defective_quantity": 313,
+            "good_quantity": 13970,
+            "attainment_pct": 84.4,
+            "defect_rate_pct": 2.2,
+            "downtime_minutes": 595
+          },
+          {
+            "date": "2026-10-13",
+            "planned_quantity": 16920,
+            "produced_quantity": 14742,
+            "defective_quantity": 344,
+            "good_quantity": 14398,
+            "attainment_pct": 87.1,
+            "defect_rate_pct": 2.3,
+            "downtime_minutes": 344
+          },
+          {
+            "date": "2026-10-14",
+            "planned_quantity": 16920,
+            "produced_quantity": 13962,
+            "defective_quantity": 305,
+            "good_quantity": 13657,
+            "attainment_pct": 82.5,
+            "defect_rate_pct": 2.2,
+            "downtime_minutes": 686
+          },
+          {
+            "date": "2026-10-15",
+            "planned_quantity": 16920,
+            "produced_quantity": 14898,
+            "defective_quantity": 309,
+            "good_quantity": 14589,
+            "attainment_pct": 88.0,
+            "defect_rate_pct": 2.1,
+            "downtime_minutes": 293
+          },
+          {
+            "date": "2026-10-16",
+            "planned_quantity": 16920,
+            "produced_quantity": 14442,
+            "defective_quantity": 284,
+            "good_quantity": 14158,
+            "attainment_pct": 85.4,
+            "defect_rate_pct": 2.0,
+            "downtime_minutes": 429
+          },
+          {
+            "date": "2026-10-17",
+            "planned_quantity": 16920,
+            "produced_quantity": 14576,
+            "defective_quantity": 291,
+            "good_quantity": 14285,
+            "attainment_pct": 86.1,
+            "defect_rate_pct": 2.0,
+            "downtime_minutes": 405
+          },
+          {
+            "date": "2026-10-18",
+            "planned_quantity": 16920,
+            "produced_quantity": 12895,
+            "defective_quantity": 287,
+            "good_quantity": 12608,
+            "attainment_pct": 76.2,
+            "defect_rate_pct": 2.2,
+            "downtime_minutes": 1353
+          },
+          {
+            "date": "2026-10-19",
+            "planned_quantity": 16920,
+            "produced_quantity": 13902,
+            "defective_quantity": 316,
+            "good_quantity": 13586,
+            "attainment_pct": 82.2,
+            "defect_rate_pct": 2.3,
+            "downtime_minutes": 766
+          },
+          {
+            "date": "2026-10-20",
+            "planned_quantity": 16920,
+            "produced_quantity": 14405,
+            "defective_quantity": 311,
+            "good_quantity": 14094,
+            "attainment_pct": 85.1,
+            "defect_rate_pct": 2.2,
+            "downtime_minutes": 574
+          },
+          {
+            "date": "2026-10-21",
+            "planned_quantity": 16920,
+            "produced_quantity": 14441,
+            "defective_quantity": 305,
+            "good_quantity": 14136,
+            "attainment_pct": 85.3,
+            "defect_rate_pct": 2.1,
+            "downtime_minutes": 536
+          },
+          {
+            "date": "2026-10-22",
+            "planned_quantity": 16920,
+            "produced_quantity": 14504,
+            "defective_quantity": 301,
+            "good_quantity": 14203,
+            "attainment_pct": 85.7,
+            "defect_rate_pct": 2.1,
+            "downtime_minutes": 547
+          },
+          {
+            "date": "2026-10-23",
+            "planned_quantity": 16920,
+            "produced_quantity": 14194,
+            "defective_quantity": 321,
+            "good_quantity": 13873,
+            "attainment_pct": 83.9,
+            "defect_rate_pct": 2.3,
+            "downtime_minutes": 809
+          },
+          {
+            "date": "2026-10-24",
+            "planned_quantity": 16920,
+            "produced_quantity": 14622,
+            "defective_quantity": 316,
+            "good_quantity": 14306,
+            "attainment_pct": 86.4,
+            "defect_rate_pct": 2.2,
+            "downtime_minutes": 569
+          },
+          {
+            "date": "2026-10-25",
+            "planned_quantity": 16920,
+            "produced_quantity": 12254,
+            "defective_quantity": 270,
+            "good_quantity": 11984,
+            "attainment_pct": 72.4,
+            "defect_rate_pct": 2.2,
+            "downtime_minutes": 1678
+          },
+          {
+            "date": "2026-10-26",
+            "planned_quantity": 16920,
+            "produced_quantity": 14431,
+            "defective_quantity": 302,
+            "good_quantity": 14129,
+            "attainment_pct": 85.3,
+            "defect_rate_pct": 2.1,
+            "downtime_minutes": 636
+          },
+          {
+            "date": "2026-10-27",
+            "planned_quantity": 16920,
+            "produced_quantity": 13910,
+            "defective_quantity": 311,
+            "good_quantity": 13599,
+            "attainment_pct": 82.2,
+            "defect_rate_pct": 2.2,
+            "downtime_minutes": 1026
+          },
+          {
+            "date": "2026-10-28",
+            "planned_quantity": 16920,
+            "produced_quantity": 14047,
+            "defective_quantity": 287,
+            "good_quantity": 13760,
+            "attainment_pct": 83.0,
+            "defect_rate_pct": 2.0,
+            "downtime_minutes": 655
+          },
+          {
+            "date": "2026-10-29",
+            "planned_quantity": 16920,
+            "produced_quantity": 14352,
+            "defective_quantity": 305,
+            "good_quantity": 14047,
+            "attainment_pct": 84.8,
+            "defect_rate_pct": 2.1,
+            "downtime_minutes": 813
+          },
+          {
+            "date": "2026-10-30",
+            "planned_quantity": 16920,
+            "produced_quantity": 14169,
+            "defective_quantity": 297,
+            "good_quantity": 13872,
+            "attainment_pct": 83.7,
+            "defect_rate_pct": 2.1,
+            "downtime_minutes": 686
+          },
+          {
+            "date": "2026-10-31",
+            "planned_quantity": 16920,
+            "produced_quantity": 13841,
+            "defective_quantity": 282,
+            "good_quantity": 13559,
+            "attainment_pct": 81.8,
+            "defect_rate_pct": 2.0,
+            "downtime_minutes": 849
+          },
+          {
+            "date": "2026-11-01",
+            "planned_quantity": 16920,
+            "produced_quantity": 13140,
+            "defective_quantity": 286,
+            "good_quantity": 12854,
+            "attainment_pct": 77.7,
+            "defect_rate_pct": 2.2,
+            "downtime_minutes": 1270
+          },
+          {
+            "date": "2026-11-02",
+            "planned_quantity": 16920,
+            "produced_quantity": 14239,
+            "defective_quantity": 308,
+            "good_quantity": 13931,
+            "attainment_pct": 84.2,
+            "defect_rate_pct": 2.2,
+            "downtime_minutes": 739
+          },
+          {
+            "date": "2026-11-03",
+            "planned_quantity": 16920,
+            "produced_quantity": 14250,
+            "defective_quantity": 318,
+            "good_quantity": 13932,
+            "attainment_pct": 84.2,
+            "defect_rate_pct": 2.2,
+            "downtime_minutes": 792
+          },
+          {
+            "date": "2026-11-04",
+            "planned_quantity": 16920,
+            "produced_quantity": 13993,
+            "defective_quantity": 282,
+            "good_quantity": 13711,
+            "attainment_pct": 82.7,
+            "defect_rate_pct": 2.0,
+            "downtime_minutes": 869
+          },
+          {
+            "date": "2026-11-05",
+            "planned_quantity": 16920,
+            "produced_quantity": 14325,
+            "defective_quantity": 304,
+            "good_quantity": 14021,
+            "attainment_pct": 84.7,
+            "defect_rate_pct": 2.1,
+            "downtime_minutes": 805
+          },
+          {
+            "date": "2026-11-06",
+            "planned_quantity": 16920,
+            "produced_quantity": 14103,
+            "defective_quantity": 312,
+            "good_quantity": 13791,
+            "attainment_pct": 83.4,
+            "defect_rate_pct": 2.2,
+            "downtime_minutes": 853
+          },
+          {
+            "date": "2026-11-07",
+            "planned_quantity": 16920,
+            "produced_quantity": 14248,
+            "defective_quantity": 304,
+            "good_quantity": 13944,
+            "attainment_pct": 84.2,
+            "defect_rate_pct": 2.1,
+            "downtime_minutes": 839
+          },
+          {
+            "date": "2026-11-08",
+            "planned_quantity": 16920,
+            "produced_quantity": 12298,
+            "defective_quantity": 261,
+            "good_quantity": 12037,
+            "attainment_pct": 72.7,
+            "defect_rate_pct": 2.1,
+            "downtime_minutes": 1680
+          },
+          {
+            "date": "2026-11-09",
+            "planned_quantity": 16920,
+            "produced_quantity": 14065,
+            "defective_quantity": 301,
+            "good_quantity": 13764,
+            "attainment_pct": 83.1,
+            "defect_rate_pct": 2.1,
+            "downtime_minutes": 938
+          },
+          {
+            "date": "2026-11-10",
+            "planned_quantity": 16920,
+            "produced_quantity": 13497,
+            "defective_quantity": 310,
+            "good_quantity": 13187,
+            "attainment_pct": 79.8,
+            "defect_rate_pct": 2.3,
+            "downtime_minutes": 1218
+          }
+        ]
+      }
+    },
+    {
+      "id": "downtime_reasons.last_7_days.L04",
+      "tool": "get_downtime_reasons",
+      "arguments": {
+        "start_date": "2026-11-04",
+        "end_date": "2026-11-10",
+        "line_codes": [
+          "L04"
+        ]
+      },
+      "expected": {
+        "total_downtime_minutes": 2903,
+        "items": [
+          {
+            "reason_code": "MECH_FAILURE",
+            "reason_name": "Mechanical failure",
+            "category": "Equipment",
+            "is_planned": false,
+            "downtime_minutes": 2433,
+            "downtime_hours": 40.6,
+            "event_count": 23,
+            "share_pct": 83.8
+          },
+          {
+            "reason_code": "CHANGEOVER",
+            "reason_name": "Product changeover",
+            "category": "Planned",
+            "is_planned": true,
+            "downtime_minutes": 221,
+            "downtime_hours": 3.7,
+            "event_count": 5,
+            "share_pct": 7.6
+          },
+          {
+            "reason_code": "QUALITY_HOLD",
+            "reason_name": "Quality hold",
+            "category": "Quality",
+            "is_planned": false,
+            "downtime_minutes": 126,
+            "downtime_hours": 2.1,
+            "event_count": 2,
+            "share_pct": 4.3
+          },
+          {
+            "reason_code": "MATERIAL_SHORTAGE",
+            "reason_name": "Material shortage",
+            "category": "Logistics",
+            "is_planned": false,
+            "downtime_minutes": 47,
+            "downtime_hours": 0.8,
+            "event_count": 1,
+            "share_pct": 1.6
+          },
+          {
+            "reason_code": "ELEC_FAULT",
+            "reason_name": "Electrical fault",
+            "category": "Equipment",
+            "is_planned": false,
+            "downtime_minutes": 46,
+            "downtime_hours": 0.8,
+            "event_count": 1,
+            "share_pct": 1.6
+          },
+          {
+            "reason_code": "OPERATOR_UNAVAIL",
+            "reason_name": "Operator unavailable",
+            "category": "Staffing",
+            "is_planned": false,
+            "downtime_minutes": 30,
+            "downtime_hours": 0.5,
+            "event_count": 3,
+            "share_pct": 1.0
+          }
+        ],
+        "omitted_count": 0
+      }
+    },
+    {
+      "id": "production_summary.yesterday.L02",
+      "tool": "get_production_summary",
+      "arguments": {
+        "start_date": "2026-11-10",
+        "end_date": "2026-11-10",
+        "line_codes": [
+          "L02"
+        ]
+      },
+      "expected": {
+        "totals": {
+          "planned_quantity": 2640,
+          "produced_quantity": 1581,
+          "defective_quantity": 21,
+          "good_quantity": 1560,
+          "attainment_pct": 59.9,
+          "defect_rate_pct": 1.3,
+          "downtime_minutes": 493,
+          "downtime_hours": 8.2,
+          "record_count": 24
+        },
+        "by_line": [
+          {
+            "line_code": "L02",
+            "line_name": "Line 02",
+            "planned_quantity": 2640,
+            "produced_quantity": 1581,
+            "defective_quantity": 21,
+            "good_quantity": 1560,
+            "attainment_pct": 59.9,
+            "defect_rate_pct": 1.3,
+            "downtime_minutes": 493,
+            "downtime_hours": 8.2,
+            "record_count": 24
+          }
+        ]
+      }
+    },
+    {
+      "id": "daily_trend.last_30_days.L02_L04",
+      "tool": "get_daily_production_trend",
+      "arguments": {
+        "start_date": "2026-10-12",
+        "end_date": "2026-11-10",
+        "line_codes": [
+          "L02",
+          "L04"
+        ]
+      },
+      "expected": {
+        "items": [
+          {
+            "date": "2026-10-12",
+            "planned_quantity": 4080,
+            "produced_quantity": 3234,
+            "defective_quantity": 54,
+            "good_quantity": 3180,
+            "attainment_pct": 79.3,
+            "defect_rate_pct": 1.7,
+            "downtime_minutes": 344
+          },
+          {
+            "date": "2026-10-13",
+            "planned_quantity": 4080,
+            "produced_quantity": 3570,
+            "defective_quantity": 63,
+            "good_quantity": 3507,
+            "attainment_pct": 87.5,
+            "defect_rate_pct": 1.8,
+            "downtime_minutes": 88
+          },
+          {
+            "date": "2026-10-14",
+            "planned_quantity": 4080,
+            "produced_quantity": 3346,
+            "defective_quantity": 57,
+            "good_quantity": 3289,
+            "attainment_pct": 82.0,
+            "defect_rate_pct": 1.7,
+            "downtime_minutes": 243
+          },
+          {
+            "date": "2026-10-15",
+            "planned_quantity": 4080,
+            "produced_quantity": 3566,
+            "defective_quantity": 58,
+            "good_quantity": 3508,
+            "attainment_pct": 87.4,
+            "defect_rate_pct": 1.6,
+            "downtime_minutes": 83
+          },
+          {
+            "date": "2026-10-16",
+            "planned_quantity": 4080,
+            "produced_quantity": 3490,
+            "defective_quantity": 54,
+            "good_quantity": 3436,
+            "attainment_pct": 85.5,
+            "defect_rate_pct": 1.5,
+            "downtime_minutes": 118
+          },
+          {
+            "date": "2026-10-17",
+            "planned_quantity": 4080,
+            "produced_quantity": 3444,
+            "defective_quantity": 53,
+            "good_quantity": 3391,
+            "attainment_pct": 84.4,
+            "defect_rate_pct": 1.5,
+            "downtime_minutes": 185
+          },
+          {
+            "date": "2026-10-18",
+            "planned_quantity": 4080,
+            "produced_quantity": 3140,
+            "defective_quantity": 56,
+            "good_quantity": 3084,
+            "attainment_pct": 77.0,
+            "defect_rate_pct": 1.8,
+            "downtime_minutes": 423
+          },
+          {
+            "date": "2026-10-19",
+            "planned_quantity": 4080,
+            "produced_quantity": 3560,
+            "defective_quantity": 61,
+            "good_quantity": 3499,
+            "attainment_pct": 87.3,
+            "defect_rate_pct": 1.7,
+            "downtime_minutes": 106
+          },
+          {
+            "date": "2026-10-20",
+            "planned_quantity": 4080,
+            "produced_quantity": 3439,
+            "defective_quantity": 60,
+            "good_quantity": 3379,
+            "attainment_pct": 84.3,
+            "defect_rate_pct": 1.7,
+            "downtime_minutes": 207
+          },
+          {
+            "date": "2026-10-21",
+            "planned_quantity": 4080,
+            "produced_quantity": 3421,
+            "defective_quantity": 57,
+            "good_quantity": 3364,
+            "attainment_pct": 83.8,
+            "defect_rate_pct": 1.7,
+            "downtime_minutes": 207
+          },
+          {
+            "date": "2026-10-22",
+            "planned_quantity": 4080,
+            "produced_quantity": 3402,
+            "defective_quantity": 56,
+            "good_quantity": 3346,
+            "attainment_pct": 83.4,
+            "defect_rate_pct": 1.6,
+            "downtime_minutes": 271
+          },
+          {
+            "date": "2026-10-23",
+            "planned_quantity": 4080,
+            "produced_quantity": 3250,
+            "defective_quantity": 54,
+            "good_quantity": 3196,
+            "attainment_pct": 79.7,
+            "defect_rate_pct": 1.7,
+            "downtime_minutes": 414
+          },
+          {
+            "date": "2026-10-24",
+            "planned_quantity": 4080,
+            "produced_quantity": 3267,
+            "defective_quantity": 52,
+            "good_quantity": 3215,
+            "attainment_pct": 80.1,
+            "defect_rate_pct": 1.6,
+            "downtime_minutes": 403
+          },
+          {
+            "date": "2026-10-25",
+            "planned_quantity": 4080,
+            "produced_quantity": 3119,
+            "defective_quantity": 47,
+            "good_quantity": 3072,
+            "attainment_pct": 76.4,
+            "defect_rate_pct": 1.5,
+            "downtime_minutes": 418
+          },
+          {
+            "date": "2026-10-26",
+            "planned_quantity": 4080,
+            "produced_quantity": 3380,
+            "defective_quantity": 55,
+            "good_quantity": 3325,
+            "attainment_pct": 82.8,
+            "defect_rate_pct": 1.6,
+            "downtime_minutes": 300
+          },
+          {
+            "date": "2026-10-27",
+            "planned_quantity": 4080,
+            "produced_quantity": 2904,
+            "defective_quantity": 50,
+            "good_quantity": 2854,
+            "attainment_pct": 71.2,
+            "defect_rate_pct": 1.7,
+            "downtime_minutes": 762
+          },
+          {
+            "date": "2026-10-28",
+            "planned_quantity": 4080,
+            "produced_quantity": 3481,
+            "defective_quantity": 58,
+            "good_quantity": 3423,
+            "attainment_pct": 85.3,
+            "defect_rate_pct": 1.7,
+            "downtime_minutes": 176
+          },
+          {
+            "date": "2026-10-29",
+            "planned_quantity": 4080,
+            "produced_quantity": 3413,
+            "defective_quantity": 50,
+            "good_quantity": 3363,
+            "attainment_pct": 83.7,
+            "defect_rate_pct": 1.5,
+            "downtime_minutes": 304
+          },
+          {
+            "date": "2026-10-30",
+            "planned_quantity": 4080,
+            "produced_quantity": 3427,
+            "defective_quantity": 58,
+            "good_quantity": 3369,
+            "attainment_pct": 84.0,
+            "defect_rate_pct": 1.7,
+            "downtime_minutes": 290
+          },
+          {
+            "date": "2026-10-31",
+            "planned_quantity": 4080,
+            "produced_quantity": 3275,
+            "defective_quantity": 52,
+            "good_quantity": 3223,
+            "attainment_pct": 80.3,
+            "defect_rate_pct": 1.6,
+            "downtime_minutes": 406
+          },
+          {
+            "date": "2026-11-01",
+            "planned_quantity": 4080,
+            "produced_quantity": 3063,
+            "defective_quantity": 49,
+            "good_quantity": 3014,
+            "attainment_pct": 75.1,
+            "defect_rate_pct": 1.6,
+            "downtime_minutes": 520
+          },
+          {
+            "date": "2026-11-02",
+            "planned_quantity": 4080,
+            "produced_quantity": 3415,
+            "defective_quantity": 55,
+            "good_quantity": 3360,
+            "attainment_pct": 83.7,
+            "defect_rate_pct": 1.6,
+            "downtime_minutes": 270
+          },
+          {
+            "date": "2026-11-03",
+            "planned_quantity": 4080,
+            "produced_quantity": 3217,
+            "defective_quantity": 54,
+            "good_quantity": 3163,
+            "attainment_pct": 78.8,
+            "defect_rate_pct": 1.7,
+            "downtime_minutes": 406
+          },
+          {
+            "date": "2026-11-04",
+            "planned_quantity": 4080,
+            "produced_quantity": 2992,
+            "defective_quantity": 53,
+            "good_quantity": 2939,
+            "attainment_pct": 73.3,
+            "defect_rate_pct": 1.8,
+            "downtime_minutes": 526
+          },
+          {
+            "date": "2026-11-05",
+            "planned_quantity": 4080,
+            "produced_quantity": 3239,
+            "defective_quantity": 48,
+            "good_quantity": 3191,
+            "attainment_pct": 79.4,
+            "defect_rate_pct": 1.5,
+            "downtime_minutes": 450
+          },
+          {
+            "date": "2026-11-06",
+            "planned_quantity": 4080,
+            "produced_quantity": 3146,
+            "defective_quantity": 51,
+            "good_quantity": 3095,
+            "attainment_pct": 77.1,
+            "defect_rate_pct": 1.6,
+            "downtime_minutes": 504
+          },
+          {
+            "date": "2026-11-07",
+            "planned_quantity": 4080,
+            "produced_quantity": 3051,
+            "defective_quantity": 50,
+            "good_quantity": 3001,
+            "attainment_pct": 74.8,
+            "defect_rate_pct": 1.6,
+            "downtime_minutes": 591
+          },
+          {
+            "date": "2026-11-08",
+            "planned_quantity": 4080,
+            "produced_quantity": 3071,
+            "defective_quantity": 43,
+            "good_quantity": 3028,
+            "attainment_pct": 75.3,
+            "defect_rate_pct": 1.4,
+            "downtime_minutes": 539
+          },
+          {
+            "date": "2026-11-09",
+            "planned_quantity": 4080,
+            "produced_quantity": 3000,
+            "defective_quantity": 47,
+            "good_quantity": 2953,
+            "attainment_pct": 73.5,
+            "defect_rate_pct": 1.6,
+            "downtime_minutes": 686
+          },
+          {
+            "date": "2026-11-10",
+            "planned_quantity": 4080,
+            "produced_quantity": 2470,
+            "defective_quantity": 38,
+            "good_quantity": 2432,
+            "attainment_pct": 60.5,
+            "defect_rate_pct": 1.5,
+            "downtime_minutes": 955
+          }
+        ]
+      }
+    },
+    {
+      "id": "downtime_by_line.last_7_days.top3",
+      "tool": "get_downtime_by_line",
+      "arguments": {
+        "start_date": "2026-11-04",
+        "end_date": "2026-11-10",
+        "top_n": 3
+      },
+      "expected": {
+        "total_downtime_minutes": 7202,
+        "items": [
+          {
+            "line_code": "L04",
+            "line_name": "Line 04",
+            "downtime_minutes": 2903,
+            "downtime_hours": 48.4,
+            "event_count": 35,
+            "share_pct": 40.3
+          },
+          {
+            "line_code": "L02",
+            "line_name": "Line 02",
+            "downtime_minutes": 1348,
+            "downtime_hours": 22.5,
+            "event_count": 21,
+            "share_pct": 18.7
+          },
+          {
+            "line_code": "L03",
+            "line_name": "Line 03",
+            "downtime_minutes": 912,
+            "downtime_hours": 15.2,
+            "event_count": 16,
+            "share_pct": 12.7
+          }
+        ],
+        "omitted_count": 3
+      }
+    }
+  ]
+}

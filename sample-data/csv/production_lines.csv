@@ -1,0 +1,7 @@
+Code,Name,Department,NominalRatePerHour,IsActive
+L01,Line 01,Assembly,120,true
+L02,Line 02,Assembly,110,true
+L03,Line 03,Packaging,180,true
+L04,Line 04,Machining,60,true
+L05,Line 05,Machining,65,true
+L06,Line 06,Packaging,170,true

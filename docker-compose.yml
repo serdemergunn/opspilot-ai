@@ -1,0 +1,42 @@
+# Local development only. Every port binds to 127.0.0.1; there is no authentication yet.
+# Usage: cp .env.example .env  (then set passwords)  &&  docker compose up --build
+name: opspilot
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: Developer
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD:?Set MSSQL_SA_PASSWORD in .env}
+    ports:
+      - "127.0.0.1:14333:1433"
+    volumes:
+      - sqldata:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -Q 'SELECT 1' -b -o /dev/null"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+
+  api:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/api.Dockerfile
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    environment:
+      # Migrator: startup only (migrations, seed, reader login). Local dev uses sa; use a dedicated principal elsewhere.
+      ConnectionStrings__Migrator: "Server=sqlserver;Database=OpsPilot;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True"
+      # Reader: serves every request; db_datareader only.
+      ConnectionStrings__Reader: "Server=sqlserver;Database=OpsPilot;User Id=opspilot_reader;Password=${OPSPILOT_DB_READER_PASSWORD:?Set OPSPILOT_DB_READER_PASSWORD in .env};TrustServerCertificate=True"
+      OpsPilot__Clock__ReferenceTimeUtc: ${OPSPILOT_REFERENCE_TIME_UTC:-2026-11-11T00:00:00Z}
+      OpsPilot__Plant__TimeZone: ${OPSPILOT_PLANT_TIMEZONE:-UTC}
+      OpsPilot__Tools__ServiceKey: ${OPSPILOT_SERVICE_KEY:?Set OPSPILOT_SERVICE_KEY in .env}
+    ports:
+      - "127.0.0.1:8080:8080"
+
+volumes:
+  sqldata:
